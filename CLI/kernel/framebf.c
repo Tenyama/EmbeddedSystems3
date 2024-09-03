@@ -195,3 +195,69 @@ void drawLCircle(int center_x, int center_y, int radius, unsigned int attr,
     drawPixelARGB32(right_x, y, attr);
   }
 }
+void print_logo() {
+    // Printing the welcome ASCII art using uart_puts
+    uart_puts("\n");
+    uart_puts("      ::::::::::       ::::::::::       ::::::::::   :::::::::::                           ::::::::         :::       ::::::::       ::::::: \n");
+    uart_puts("     :+:              :+:              :+:              :+:                              :+:    :+:       :+:       :+:    :+:     :+:   :+: \n");
+    uart_puts("    +:+              +:+              +:+              +:+                                    +:+       +:+ +:+    +:+    +:+     +:+   +:+  \n");
+    uart_puts("   +#++:++#         +#++:++#         +#++:++#         +#+           +#++:++#++:++          +#+        +#+  +:+     +#++:++#+     +#+   +:+   \n");
+    uart_puts("  +#+              +#+              +#+              +#+                                +#+         +#+#+#+#+#+         +#+     +#+   +#+    \n");
+    uart_puts(" #+#              #+#              #+#              #+#                               #+#                #+#    #+#    #+#     #+#   #+#     \n");
+    uart_puts("##########       ##########       ##########       ###                              ##########          ###     ########       #######       \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("      :::::::::           :::        :::::::::       ::::::::::        ::::::::       ::::::::                                               \n");
+    uart_puts("     :+:    :+:        :+: :+:      :+:    :+:      :+:              :+:    :+:     :+:    :+:                                               \n");
+    uart_puts("    +:+    +:+       +:+   +:+     +:+    +:+      +:+              +:+    +:+     +:+                                                       \n");
+    uart_puts("   +#++:++#+       +#++:++#++:    +#++:++#:       +#++:++#         +#+    +:+     +#++:++#++                                                 \n");
+    uart_puts("  +#+    +#+      +#+     +#+    +#+    +#+      +#+              +#+    +#+            +#+                                                  \n");
+    uart_puts(" #+#    #+#      #+#     #+#    #+#    #+#      #+#              #+#    #+#     #+#    #+#                                                   \n");
+    uart_puts("#########       ###     ###    ###    ###      ##########        ########       ########                                                     \n \n \n \n");
+}
+
+
+
+void draw_command_table() {
+
+    //EDITTING FOR MORE READABLE OUTPUT
+    uart_puts("\n");
+    uart_puts("\n");
+    uart_puts("\n");
+    uart_puts("\n");
+
+    uart_puts("======================================================================================== \n");
+    uart_puts("||                                      COMMAND MENU                                  || \n");
+    uart_puts("======================================================================================== \n ");
+
+    uart_puts("\n+-----------+----------------------+-----------------------------------------------+\n");
+    uart_puts("| Command # | Command Name         | Usage                                         |\n");
+    uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+    
+    uart_puts("| 1         | help                 | Show brief information of all commands        |\n");
+    uart_puts("|           |                      | Example: MyOS> help                           |\n");
+    uart_puts("|           | help <command_name>  | Show full information of a specific command   |\n");
+    uart_puts("|           |                      | Example: MyOS> help showinfo                  |\n");
+    uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+    
+    uart_puts("| 2         | clear                | Clear screen (scroll down to current cursor)  |\n");
+    uart_puts("|           |                      | Example: MyOS> clear                          |\n");
+    uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+
+    uart_puts("| 3         | showinfo             | Show board revision and MAC address           |\n");
+    uart_puts("|           |                      | Example: MyOS> showinfo                       |\n");
+    uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+
+    uart_puts("| 4         | baudrate             | Change UART baudrate                          |\n");
+    uart_puts("|           |                      | Example: MyOS> baudrate 9600                  |\n");
+    uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+
+    uart_puts("| 5         | stopbit              | Change UART stopbit setting to 1 or 2         |\n");
+    uart_puts("|           |                      | Example: MyOS> stopbit 1                      |\n");
+    uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+}

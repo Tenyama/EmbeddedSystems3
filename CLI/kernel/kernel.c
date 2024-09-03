@@ -52,23 +52,50 @@ void cli() {
     /* Compare with supported commands and execute*/
     if (string_compare(cli_buffer, "draw")) {
       framebf_init();
+<<<<<<< HEAD
+      }
+    else if(string_compare(cli_buffer,"help"))
+    {
+      
+    }
+      uart_puts("*.* Group1_OS *.* > ");
+=======
+      drawRectARGB32(100, 100, 400, 400, 0x00AA0000, 1); // RED
+      drawRectARGB32(150, 150, 400, 400, 0x0000BB00, 1); // GREEN
+      drawRectARGB32(200, 200, 400, 400, 0x000000CC, 1); // BLUE
+      drawRectARGB32(250, 250, 400, 400, 0x00FFFF00, 1); // YELLOW
+      drawPixelARGB32(300, 300, 0x00FF0000);             // RED
+    }
+    if (string_compare(cli_buffer, "exit")) {
+      uart_puts("Shutting down...\n");
+      uart_puts("Press CTRL + C to return to Terminal\n");
+      asm volatile("wfi");
     }
 
-    uart_puts("Embedded Systems 3 > ");
+    uart_puts("Embedded Systems 3> ");
 
+>>>>>>> 2b07278368b921113a69bcbee997e7259f42e456
     // Reset the buffer index
     index = 0;
+    
+    
   }
+    
+
 }
 
 void main() {
   // set up serial console
   uart_init();
-  uart_puts("Hello World!\n");
+
+  //print out EEET2490 BARE OS 
+  print_logo();
+
+  
+  draw_command_table();
 
   // Display the initial prompt
-  uart_puts("Embedded Systems 3 > ");
-
+  uart_puts("*.* Group1_OS *.* > ");
   // run CLI
   while (1) {
     cli();
