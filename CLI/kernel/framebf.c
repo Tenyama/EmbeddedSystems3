@@ -261,3 +261,5 @@ void draw_command_table() {
     uart_puts("|           |                      | Example: MyOS> stopbit 1                      |\n");
     uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
 }
+
+
