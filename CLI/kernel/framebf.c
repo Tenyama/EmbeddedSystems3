@@ -3,6 +3,7 @@
 #include "mbox.h"
 // #include "../uart/uart0.h"
 #include "../uart/uart1.h"
+#include "./menu.h"
 
 // Use RGBA32 (32 bits for each pixel)
 #define COLOR_DEPTH 32
@@ -11,9 +12,9 @@
 #define PIXEL_ORDER 0
 
 #define MAX_CMD_SIZE 100
+#define HISTORY_SIZE 10
 #define BACKSPACE 8
 #define DELETE 127
-
 
 // Screen info
 unsigned int width, height, pitch;
@@ -103,8 +104,6 @@ void framebf_init() {
     uart_puts("Unable to get a frame buffer with provided setting\n");
   }
 }
-
-
 
 void drawPixelARGB32(int x, int y, unsigned int attr) {
   int offs = (y * pitch) + (COLOR_DEPTH / 8 * x);
@@ -204,48 +203,75 @@ void drawLCircle(int center_x, int center_y, int radius, unsigned int attr,
 }
 
 void cli() {
-    char cli_buffer[MAX_CMD_SIZE];
-    int index = 0;
+  static char history[HISTORY_SIZE][MAX_CMD_SIZE]; // Pre-allocate history
+  static char cli_buffer[MAX_CMD_SIZE];
+  static int index = 0;
+  static int history_index = 0;
+  static int current_index = 0;
 
-    uart_puts("*.* Group1_OS *.* > ");
+  uart_puts("*.* Group1_OS *.* > ");
 
-    while (1) {
-        char c = uart_getc();
+  while (1) {
+    char c = uart_getc();
 
-        // Handle backspace
-        if (c == BACKSPACE || c == DELETE) {
-            if (index > 0) {
-                index--;
-                uart_puts("\b \b");
-            }
-        } else if (c == '\r' || c == '\n') {  // Handle Enter key
-            cli_buffer[index] = '\0';  // Null-terminate the string
-            uart_puts("\n");
-            break;
-        } else if (index < MAX_CMD_SIZE - 1) {
-            cli_buffer[index++] = c;
-            uart_sendc(c);  // Echo the character back
-        }
-    }
+    // Handle backspace
+    if (c == BACKSPACE || c == DELETE) {
+      if (index > 0) {
+        index--;
+        uart_puts("\b \b");
+        cli_buffer[index] = '\0';
+      }
+    } else if (c == '+') {
+      if (current_index > 0) {
+        current_index--;
+        uart_puts("\n*.* Group1_OS *.* > ");
+        string_copy(cli_buffer, history[current_index]);
+        uart_puts(cli_buffer);
+        index = string_length(cli_buffer);
+      }
+    } else if (c == '-') {
+      if (current_index < history_index - 1) {
+        current_index++;
+        uart_puts("\n*.* Group1_OS *.* > ");
+        string_copy(cli_buffer, history[current_index]);
+        uart_puts(cli_buffer);
+        index = string_length(cli_buffer);
+      }
+    } else if (c == '\r' || c == '\n') { // Handle Enter key
+      cli_buffer[index] = '\0';
 
-    if (string_starts_with(cli_buffer, "help ")) {
-      char command[MAX_CMD_SIZE];
-      string_copy(command, cli_buffer + 5);  // Skip "help " and copy the rest
-      handle_help_command(command);
+      // copy cli_buffer into the current history entry manually
+      for (int i = 0; i <= index; i++) {
+        history[history_index][i] = cli_buffer[i]; // copy each character
+      }
+      uart_puts("\n");
+      history_index = (history_index + 1) % HISTORY_SIZE;
+      current_index = history_index;
+      index = 0;
+      break;
+    } else if (index < MAX_CMD_SIZE - 1) {
+      cli_buffer[index] = c;
+      index++;
+      uart_sendc(c); // Echothe character back
     }
-    else if (string_compare(cli_buffer, "help")) 
-    {
-      draw_command_table();  // Show the command menu if just "help" is entered
-    } 
-    else if(string_compare(cli_buffer, "stopbits "))
-    {
-      handle_stopbits_command(cli_buffer);
-    }
-    else if(string_compare(cli_buffer, "showinfo")) 
-    {
-      display_board_info(); //da ra output nhung chua check dung hay k
-    }
-    else {
-        uart_puts("Invalid command format. Use 'help' or 'help <command_name>' to get valid commands.\n");
-    }
+  }
+  if (string_compare(cli_buffer, "exit")) {
+    uart_puts("Shutting down...\n");
+    uart_puts("Press CTRL + C to return to Terminal\n");
+    asm volatile("wfi");
+  }
+  if (string_starts_with(cli_buffer, "help ")) {
+    char command[MAX_CMD_SIZE];
+    string_copy(command, cli_buffer + 5); // Skip "help " and copy the rest
+    handle_help_command(command);
+  } else if (string_compare(cli_buffer, "help")) {
+    draw_command_table(); // Show the command menu if just "help" is entered
+  } else if (string_compare(cli_buffer, "stopbits ")) {
+    handle_stopbits_command(cli_buffer);
+  } else if (string_compare(cli_buffer, "showinfo")) {
+    display_board_info(); // da ra output nhung chua check dung hay k
+  } else {
+    uart_puts("Invalid command format. Use 'help' or 'help <command_name>' to "
+              "get valid commands.\n");
+  }
 }
