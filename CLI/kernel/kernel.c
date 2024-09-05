@@ -3,103 +3,101 @@
 #include "framebf.h"
 #include "mbox.h"
 
-#define MAX_CMD_SIZE 100
-#define BACKSPACE 8
-#define DELETE 127
+// int string_compare(const char *str1, const char *str2) {
+//     while (*str1 && *str2) {
+//         if (*str1 != *str2) {
+//             return 0;
+//         }
+//         str1++;
+//         str2++;
+//     }
+//     return (*str1 == '\0' && *str2 == '\0');
+// }
 
-int string_compare(const char *str1, const char *str2) {
-  while (*str1 && *str2) {
-    if (*str1 != *str2) {
-      return 0;
-    }
-    str1++;
-    str2++;
-  }
-  return (*str1 == '\0' && *str2 == '\0');
-}
+// int string_starts_with(const char* str, const char* prefix) {
+//     while (*prefix) {
+//         if (*str++ != *prefix++) {
+//             return 0;
+//         }
+//     }
+//     return 1;
+// }
 
-void cli() {
-  static char cli_buffer[MAX_CMD_SIZE];
-  static int index = 0;
+// void string_copy(char* dest, const char* src) {
+//     while (*src) {
+//         *dest++ = *src++;
+//     }
+//     *dest = '\0';
+// }
 
-  // read a character from UART
-  char c = uart_getc();
+// void handle_command(char command[]) {
+//     if (string_compare(command, "showinfo")) {
+//         uart_puts("Executing 'showinfo' command...\n");
+//     } else if (string_compare(command, "clear")) {
+//         uart_puts("Executing 'clear' command...\n");
+//     } else if (string_compare(command, "exit")) {
+//         uart_puts("Executing 'exit' command...\n");
+//     } else if (string_compare(command, "draw image")) {
+//         uart_puts("Executing 'draw image' command...\n");
+//     } else if (string_compare(command, "baudrate")) {
+//         uart_puts("Executing 'baudrate' command...\n");
+//     } else if (string_compare(command, "stopbit")) {
+//         uart_puts("Executing 'stopbit' command...\n");
+//     } else {
+//         uart_puts("Unknown command: ");
+//         uart_puts(command);
+//         uart_puts("\n");
+//     }
+// }
 
-  if (c == BACKSPACE || c == DELETE) {
-    if (index > 0) {
-      // Move the cursor back, print a space to clear the character, then move
-      // the cursor back again
-      index--;
-      uart_sendc('\b');
-      uart_sendc(' ');
-      uart_sendc('\b');
+// void cli() {
+//     char cli_buffer[MAX_CMD_SIZE];
+//     int index = 0;
 
-      cli_buffer[index] = '\0';
-    }
-  } else if (c != '\n') {
-    if (index < MAX_CMD_SIZE - 1) {
-      cli_buffer[index] = c;
-      index++;
-      uart_sendc(c);
-    }
-  } else if (c == '\n') {
-    cli_buffer[index] = '\0';
+//     uart_puts("*.* Group1_OS *.* > ");
 
-    uart_puts("\nGot commands: ");
-    uart_puts(cli_buffer);
-    uart_puts("\n");
+//     while (1) {
+//         char c = uart_getc();
 
-    /* Compare with supported commands and execute*/
-    if (string_compare(cli_buffer, "draw")) {
-      framebf_init();
-<<<<<<< HEAD
-      }
-    else if(string_compare(cli_buffer,"help"))
-    {
-      
-    }
-      uart_puts("*.* Group1_OS *.* > ");
-=======
-      drawRectARGB32(100, 100, 400, 400, 0x00AA0000, 1); // RED
-      drawRectARGB32(150, 150, 400, 400, 0x0000BB00, 1); // GREEN
-      drawRectARGB32(200, 200, 400, 400, 0x000000CC, 1); // BLUE
-      drawRectARGB32(250, 250, 400, 400, 0x00FFFF00, 1); // YELLOW
-      drawPixelARGB32(300, 300, 0x00FF0000);             // RED
-    }
-    if (string_compare(cli_buffer, "exit")) {
-      uart_puts("Shutting down...\n");
-      uart_puts("Press CTRL + C to return to Terminal\n");
-      asm volatile("wfi");
-    }
+//         // Handle backspace
+//         if (c == BACKSPACE || c == DELETE) {
+//             if (index > 0) {
+//                 index--;
+//                 uart_puts("\b \b");
+//             }
+//         } else if (c == '\r' || c == '\n') {  // Handle Enter key
+//             cli_buffer[index] = '\0';  // Null-terminate the string
+//             uart_puts("\n");
+//             break;
+//         } else if (index < MAX_CMD_SIZE - 1) {
+//             cli_buffer[index++] = c;
+//             uart_sendc(c);  // Echo the character back
+//         }
+//     }
 
-    uart_puts("Embedded Systems 3> ");
-
->>>>>>> 2b07278368b921113a69bcbee997e7259f42e456
-    // Reset the buffer index
-    index = 0;
-    
-    
-  }
-    
-
-}
+//     if (string_starts_with(cli_buffer, "help ")) {
+//         char command[MAX_CMD_SIZE];
+//         string_copy(command, cli_buffer + 5);  // Skip "help " and copy the rest
+//         handle_command(command);
+//     }
+//     else if (string_compare(cli_buffer, "help")) 
+//     {
+//       draw_command_table();  // Show the command menu if just "help" is entered
+//     } 
+//     else {
+//         uart_puts("Invalid command format. Use 'help <command_name>'.\n");
+//     }
+// }
 
 void main() {
-  // set up serial console
-  uart_init();
+    uart_init();
+    print_logo();
 
-  //print out EEET2490 BARE OS 
-  print_logo();
+    uart_puts("To display the acceptable commands, please enter only 'help' for further assistance.\n");
+    uart_puts("\nThen enter the help and command name for detailed information. \nThe correct format is: 'help <command_name>'\n\n");
+    uart_puts("========================================================================================\n\n");
 
-  
-  draw_command_table();
-
-  // Display the initial prompt
-  uart_puts("*.* Group1_OS *.* > ");
-  // run CLI
-  while (1) {
-    cli();
-  }
+    while (1) {
+        cli();
+    }
 }
-
-

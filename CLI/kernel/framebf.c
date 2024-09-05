@@ -10,6 +10,10 @@
 // Pixel Order: BGR in memory order (little endian --> RGB in byte order)
 #define PIXEL_ORDER 0
 
+#define MAX_CMD_SIZE 100
+#define BACKSPACE 8
+#define DELETE 127
+
 // Screen info
 unsigned int width, height, pitch;
 
@@ -195,36 +199,94 @@ void drawLCircle(int center_x, int center_y, int radius, unsigned int attr,
     drawPixelARGB32(right_x, y, attr);
   }
 }
-void print_logo() {
-    // Printing the welcome ASCII art using uart_puts
-    uart_puts("\n");
-    uart_puts("      ::::::::::       ::::::::::       ::::::::::   :::::::::::                           ::::::::         :::       ::::::::       ::::::: \n");
-    uart_puts("     :+:              :+:              :+:              :+:                              :+:    :+:       :+:       :+:    :+:     :+:   :+: \n");
-    uart_puts("    +:+              +:+              +:+              +:+                                    +:+       +:+ +:+    +:+    +:+     +:+   +:+  \n");
-    uart_puts("   +#++:++#         +#++:++#         +#++:++#         +#+           +#++:++#++:++          +#+        +#+  +:+     +#++:++#+     +#+   +:+   \n");
-    uart_puts("  +#+              +#+              +#+              +#+                                +#+         +#+#+#+#+#+         +#+     +#+   +#+    \n");
-    uart_puts(" #+#              #+#              #+#              #+#                               #+#                #+#    #+#    #+#     #+#   #+#     \n");
-    uart_puts("##########       ##########       ##########       ###                              ##########          ###     ########       #######       \n");
-    uart_puts("                                                                                                                                             \n");
-    uart_puts("                                                                                                                                             \n");
-    uart_puts("                                                                                                                                             \n");
-    uart_puts("                                                                                                                                             \n");
-    uart_puts("                                                                                                                                             \n");
-    uart_puts("                                                                                                                                             \n");
-    uart_puts("                                                                                                                                             \n");
-    uart_puts("      :::::::::           :::        :::::::::       ::::::::::        ::::::::       ::::::::                                               \n");
-    uart_puts("     :+:    :+:        :+: :+:      :+:    :+:      :+:              :+:    :+:     :+:    :+:                                               \n");
-    uart_puts("    +:+    +:+       +:+   +:+     +:+    +:+      +:+              +:+    +:+     +:+                                                       \n");
-    uart_puts("   +#++:++#+       +#++:++#++:    +#++:++#:       +#++:++#         +#+    +:+     +#++:++#++                                                 \n");
-    uart_puts("  +#+    +#+      +#+     +#+    +#+    +#+      +#+              +#+    +#+            +#+                                                  \n");
-    uart_puts(" #+#    #+#      #+#     #+#    #+#    #+#      #+#              #+#    #+#     #+#    #+#                                                   \n");
-    uart_puts("#########       ###     ###    ###    ###      ##########        ########       ########                                                     \n \n \n \n");
+
+int string_compare(const char *str1, const char *str2) {
+    while (*str1 && *str2) {
+        if (*str1 != *str2) {
+            return 0;
+        }
+        str1++;
+        str2++;
+    }
+    return (*str1 == '\0' && *str2 == '\0');
+}
+
+int string_starts_with(const char* str, const char* prefix) {
+    while (*prefix) {
+        if (*str++ != *prefix++) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void string_copy(char* dest, const char* src) {
+    while (*src) {
+        *dest++ = *src++;
+    }
+    *dest = '\0';
+}
+
+void handle_help_command(char command[]) {
+    if (string_compare(command, "showinfo")) {
+      uart_puts("\n+-----------+----------------------+-----------------------------------------------+\n");
+      uart_puts("| Command # | Command Name         | Usage                                         |\n");
+      uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+      uart_puts("|           | showinfo             | Show board revision and MAC address           |\n");
+      uart_puts("|           |                      | Example: MyOS> showinfo                       |\n");
+      uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+    } else if (string_compare(command, "clear")) {
+        uart_puts("\n+-----------+----------------------+-----------------------------------------------+\n");
+        uart_puts("| Command # | Command Name         | Usage                                         |\n");
+        uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+        uart_puts("|           | clear                | Clear screen (scroll down to current cursor)  |\n");
+        uart_puts("|           |                      | Example: MyOS> clear                          |\n");
+        uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+        // You may want to implement a screen clearing function here.
+    } else if (string_compare(command, "exit")) {
+        uart_puts("\n+-----------+----------------------+-----------------------------------------------+\n");
+        uart_puts("| Command # | Command Name         | Usage                                         |\n");
+        uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+        uart_puts("|           | clear                | Clear screen (scroll down to current cursor)  |\n");
+        uart_puts("|           |                      | Example: MyOS> clear                          |\n");
+        uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+        // Exit logic here
+    } else if (string_compare(command, "baudrate")) {
+        uart_puts("\n+-----------+----------------------+--------------------------------------------------------------+\n");
+        uart_puts("| Command # | Command Name         | Usage                                                          |\n");
+        uart_puts("+-----------+----------------------+----------------------------------------------------------------+\n");
+        uart_puts("|           | baudrate             | The baudrate can be set to the values such as: 9600, 115200,   |\n");
+        uart_puts("|           |                      | Example: MyOS> baudrate 9600                                   |\n");
+        uart_puts("+-----------+----------------------+----------------------------------------------------------------+\n");
+    } else if (string_compare(command, "stopbit")) {
+        uart_puts("\n+-----------+----------------------+--------------------------------------------------------------+\n");
+        uart_puts("| Command # | Command Name         | Usage                                                          |\n");
+        uart_puts("+-----------+----------------------+----------------------------------------------------------------+\n");
+        uart_puts("|           | stopbit              | The stopbit can be set to the values such as: 1, 2             |\n");
+        uart_puts("|           |                      | Example: MyOS> stopbit 1                                       |\n");
+        uart_puts("+-----------+----------------------+----------------------------------------------------------------+\n");
+        // Set stopbit logic here
+    } else if (string_compare(command, "display image")) {
+        uart_puts("\n+-----------+----------------------+--------------------------------------------------------------+\n");
+        uart_puts("| Command # | Command Name         | Usage                                                          |\n");
+        uart_puts("+-----------+----------------------+----------------------------------------------------------------+\n");
+        uart_puts("|           | baudrate             | The baudrate can be set to the values such as: 9600, 115200,   |\n");
+        uart_puts("|           |                      | Example: MyOS> baudrate 9600                                   |\n");
+        uart_puts("+-----------+----------------------+----------------------------------------------------------------+\n");
+        // Call a function to display the image here
+    } else if (string_compare(command, "play game")) {
+        uart_puts("Starting game...\n");
+        // Call a function to start the game
+    } else {
+        uart_puts("Unknown command: ");
+        uart_puts(command);
+        uart_puts("\n");
+    }
 }
 
 
-
 void draw_command_table() {
-
+  
     //EDITTING FOR MORE READABLE OUTPUT
     uart_puts("\n");
     uart_puts("\n");
@@ -260,6 +322,106 @@ void draw_command_table() {
     uart_puts("| 5         | stopbit              | Change UART stopbit setting to 1 or 2         |\n");
     uart_puts("|           |                      | Example: MyOS> stopbit 1                      |\n");
     uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+
+    uart_puts("| 6         | display image        | Display the image of our team                 |\n");
+    uart_puts("|           |                      | Example: MyOS> display image                  |\n");
+    uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+
+    uart_puts("| 7         | play game            | Start game and display in QEMU                |\n");
+    uart_puts("|           |                      | Example: MyOS> play game                      |\n");
+    uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
+
+    uart_puts("| 8         | exit                 | exit                                          |\n");
+    uart_puts("|           |                      | Example: MyOS> exit                           |\n");
+    uart_puts("+-----------+----------------------+-----------------------------------------------+\n");
 }
 
+void cli() {
+    char cli_buffer[MAX_CMD_SIZE];
+    int index = 0;
 
+    uart_puts("*.* Group1_OS *.* > ");
+
+    while (1) {
+        char c = uart_getc();
+
+        // Handle backspace
+        if (c == BACKSPACE || c == DELETE) {
+            if (index > 0) {
+                index--;
+                uart_puts("\b \b");
+            }
+        } else if (c == '\r' || c == '\n') {  // Handle Enter key
+            cli_buffer[index] = '\0';  // Null-terminate the string
+            uart_puts("\n");
+            break;
+        } else if (index < MAX_CMD_SIZE - 1) {
+            cli_buffer[index++] = c;
+            uart_sendc(c);  // Echo the character back
+        }
+    }
+
+    if (string_starts_with(cli_buffer, "help ")) {
+        char command[MAX_CMD_SIZE];
+        string_copy(command, cli_buffer + 5);  // Skip "help " and copy the rest
+        handle_help_command(command);
+    }
+    else if (string_compare(cli_buffer, "help")) 
+    {
+        draw_command_table();  // Show the command menu if just "help" is entered
+    } 
+    else {
+        uart_puts("Invalid command format. Use 'help <command_name>'.\n");
+    }
+}
+
+void print_logo() {
+    // Printing the welcome ASCII art using uart_puts
+    uart_puts("\n");
+    uart_puts("      ::::::::::       ::::::::::       ::::::::::   :::::::::::                           ::::::::         :::       ::::::::       ::::::: \n");
+    uart_puts("     :+:              :+:              :+:              :+:                              :+:    :+:       :+:       :+:    :+:     :+:   :+: \n");
+    uart_puts("    +:+              +:+              +:+              +:+                                    +:+       +:+ +:+    +:+    +:+     +:+   +:+  \n");
+    uart_puts("   +#++:++#         +#++:++#         +#++:++#         +#+           +#++:++#++:++          +#+        +#+  +:+     +#++:++#+     +#+   +:+   \n");
+    uart_puts("  +#+              +#+              +#+              +#+                                +#+         +#+#+#+#+#+         +#+     +#+   +#+    \n");
+    uart_puts(" #+#              #+#              #+#              #+#                               #+#                #+#    #+#    #+#     #+#   #+#     \n");
+    uart_puts("##########       ##########       ##########       ###                              ##########          ###     ########       #######       \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("                                                                                                                                             \n");
+    uart_puts("      :::::::::           :::        :::::::::       ::::::::::        ::::::::       ::::::::                                               \n");
+    uart_puts("     :+:    :+:        :+: :+:      :+:    :+:      :+:              :+:    :+:     :+:    :+:                                               \n");
+    uart_puts("    +:+    +:+       +:+   +:+     +:+    +:+      +:+              +:+    +:+     +:+                                                       \n");
+    uart_puts("   +#++:++#+       +#++:++#++:    +#++:++#:       +#++:++#         +#+    +:+     +#++:++#++                                                 \n");
+    uart_puts("  +#+    +#+      +#+     +#+    +#+    +#+      +#+              +#+    +#+            +#+                                                  \n");
+    uart_puts(" #+#    #+#      #+#     #+#    #+#    #+#      #+#              #+#    #+#     #+#    #+#                                                   \n");
+    uart_puts("#########       ###     ###    ###    ###      ##########        ########       ########                                                     \n \n \n \n");
+
+    uart_puts("============================================================================= \n");
+    uart_puts("||                               TEAM MEMBERS                              || \n");
+    uart_puts("============================================================================= \n ");
+
+
+    uart_puts("          +---------------------------+----------------------------+\n");
+    uart_puts("           |            SID            |          Full Name         |\n");
+    uart_puts("           +---------------------------+----------------------------+\n");
+    
+    uart_puts("           |         s3924729          |         HO QUANG HUY       |\n");
+    uart_puts("           |                           |                            |\n");
+    uart_puts("           +---------------------------+----------------------------+\n");
+    
+    uart_puts("           |         s386878           |      PHUNG THI MINH ANH    |\n");
+    uart_puts("           |                           |                            |\n");
+    uart_puts("           +---------------------------+----------------------------+\n");
+
+    uart_puts("           | 3                         |      TRINH PHUONG THAO     |\n");
+    uart_puts("           |                           |                            |\n");
+    uart_puts("           +---------------------------+----------------------------+\n");
+
+    uart_puts("           | 4                         |        LE THIEN SON        |\n");
+    uart_puts("           +---------------------------+----------------------------+\n\n\n\n");
+
+}
