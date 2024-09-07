@@ -148,6 +148,8 @@
 /* TDR = Test Data Register */
 #define UART0_TDR	(* (volatile unsigned int*)(UART0_BASE + 0x8C))
 
+#define SYSTEM_CLOCK 250000000  // 250 MHz clock for Mini UART
+
 
 /* Function prototypes */
 void uart_init();

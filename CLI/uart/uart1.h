@@ -21,3 +21,9 @@ char uart_getc();
 void uart_puts(char *s);
 void uart_hex(unsigned int num);
 void uart_dec(int num);
+
+//setting values methods
+void set_baudrate_uart1(int baudrate);
+void set_stopbits_uart1(int stopbits);
+void check_stopbits_uart1();
+void check_baudrate_uart1();
