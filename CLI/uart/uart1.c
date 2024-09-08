@@ -1,5 +1,7 @@
 #include "uart1.h"
+volatile unsigned int baudrate = 115200;
 
+#define SYSTEM_CLOCK 250000000 // 250 MHz clock for Mini UART
 /**
  * Set baud rate and characteristics (115200 8N1) and map to GPIO
  */
@@ -7,14 +9,14 @@ void uart_init() {
   unsigned int r;
 
   /* initialize UART */
-  AUX_ENABLE |= 1;   // enable mini UART (UART1)
-  AUX_MU_CNTL = 0;   // stop transmitter and receiver
-  AUX_MU_LCR = 3;    // 8-bit mode (also enable bit 1 to be used for RPI3)
-  AUX_MU_MCR = 0;    // clear RTS (request to send)
-  AUX_MU_IER = 0;    // disable interrupts
-  AUX_MU_IIR = 0xc6; // enable and clear FIFOs
-  AUX_MU_BAUD =
-      270; // configure 115200 baud rate [system_clk_freq/(baud_rate*8) - 1]
+  AUX_ENABLE |= 1;        // enable mini UART (UART1)
+  AUX_MU_CNTL = 0;        // stop transmitter and receiver
+  AUX_MU_LCR = 3;         // 8-bit mode (also enable bit 1 to be used for RPI3)
+  AUX_MU_MCR = 0;         // clear RTS (request to send)
+  AUX_MU_IER = 0;         // disable interrupts8
+  AUX_MU_IIR = 0xc6;      // enable and clear FIFOs
+  AUX_MU_BAUD = baudrate; // configure 115200 baud rate
+                          // [system_clk_freq/(baud_rate*8) - 1]
 
   /* Note: refer to page 11 of ARM Peripherals guide for baudrate configuration
   (system_clk_freq is 250MHz by default) */
@@ -116,7 +118,7 @@ void uart_hex(unsigned int num) {
 */
 void uart_dec(int num) {
   // A string to store the digit characters
-  char str[33] = "";
+  char str[33] = {0};
 
   // Calculate the number of digits
   int len = 1;
@@ -135,4 +137,50 @@ void uart_dec(int num) {
   str[len] = '\0';
 
   uart_puts(str);
+}
+
+void set_baudrate_uart1(volatile unsigned int baudrate) {
+  AUX_MU_CNTL = 0; // Disable UART
+  unsigned int baudrate_div = (SYSTEM_CLOCK / (8 * baudrate)) - 1;
+  AUX_MU_BAUD = baudrate_div; // Set baudrate divisor
+  asm volatile("dsb sy");     // Data Synchronization Barrier
+  AUX_MU_CNTL = 3;            // Re-enable UART
+}
+
+// Function to set the stopbits
+void set_stopbits_uart1(int stopbits) {
+  if (stopbits == 1) {
+    uart_puts("Stopbits set to 1.\n");
+    // UART1 only supports 1 stopbit
+  } else {
+    uart_puts("Only 1 stopbit is supported by this UART.\n");
+  }
+}
+
+void check_baudrate_uart1() {
+  unsigned int baudrate_div = AUX_MU_BAUD; // Read the current baudrate divisor
+  uart_puts("Current baudrate divisor: ");
+  uart_dec(baudrate_div);
+  uart_puts("\n");
+
+  // Optionally, calculate the baudrate based on the divisor
+  int actual_baudrate = SYSTEM_CLOCK / (8 * (baudrate_div + 1));
+  uart_puts("Actual baudrate: ");
+  uart_dec(actual_baudrate);
+  uart_puts("\n");
+}
+
+void check_stopbits_uart1() {
+  unsigned int lcr = AUX_MU_LCR; // Read the Line Control Register
+  uart_puts("Current Line Control Register (AUX_MU_LCR): ");
+  uart_hex(lcr);
+  uart_puts("\n");
+
+  // Check stopbits (this example assumes your hardware supports changing
+  // stopbits)
+  if (lcr & (1 << 2)) {
+    uart_puts("2 stopbits are set.\n");
+  } else {
+    uart_puts("1 stopbit is set.\n");
+  }
 }

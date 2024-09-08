@@ -1,9 +1,9 @@
 // -----------------------------------mbox.c
 // -------------------------------------
 #include "mbox.h"
-// #include "../uart/uart0.h"
+#include "../uart/uart1.h"
 #include "gpio.h"
-#include "uart1.h"
+// #include "../uart/uart0.h"
 
 /* Mailbox Data Buffer (each element is 32-bit)*/
 /*
@@ -78,3 +78,5 @@ int mbox_call(unsigned int buffer_addr, unsigned char channel) {
 
   return 0;
 }
+
+
