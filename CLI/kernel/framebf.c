@@ -240,7 +240,7 @@ void cli() {
         uart_puts(cli_buffer);
         index = string_length(cli_buffer);
       }
-    } else if (c == '\t') {
+    } else if (c == '\t') { // Handle tab
       cli_buffer[index] = '\0';
 
       char *match = "";

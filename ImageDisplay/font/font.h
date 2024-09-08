@@ -1,9 +1,9 @@
 #ifndef FONT_H
 #define FONT_H
-
+#include "../kernel/gpio.h"
 
 // Define the number of characters and the size of each character bitmap
-#define FONT_WIDTH  8
+#define FONT_WIDTH 8
 #define FONT_HEIGHT 16
 #define FONT_CHAR_COUNT 95
 
