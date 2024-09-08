@@ -15,7 +15,10 @@
 #define HISTORY_SIZE 10
 #define BACKSPACE 8
 #define DELETE 127
-
+#define COMMAND_SIZE 9
+static char *command_list[] = {"clear",         "help",      "showinfo",
+                               "baudrate",      "stopbit",   "clear",
+                               "display image", "play game", "exit"};
 // Screen info
 unsigned int width, height, pitch;
 
@@ -236,6 +239,40 @@ void cli() {
         string_copy(cli_buffer, history[current_index]);
         uart_puts(cli_buffer);
         index = string_length(cli_buffer);
+      }
+    } else if (c == '\t') {
+      cli_buffer[index] = '\0';
+
+      char *match = "";
+      int match_count = 0;
+
+      for (int i = 0; i < COMMAND_SIZE; i++) {
+        if (string_starts_with(command_list[i], cli_buffer)) {
+          if (match_count == 0) {
+            match = command_list[i];
+          }
+          match_count++;
+        }
+      }
+
+      if (match_count == 1) {
+        string_copy(cli_buffer, match);
+        for (int i = 1; i < index; i++) {
+          uart_puts("\b \b");
+        }
+        uart_puts("\b \b");
+        index = string_length(cli_buffer);
+        uart_puts(match);
+      } else if (match_count > 1) {
+        uart_puts("\nPossible matches:\n");
+        for (int i = 0; i < COMMAND_SIZE; i++) {
+          if (string_starts_with(command_list[i], cli_buffer)) {
+            uart_puts(command_list[i]);
+            uart_puts("\t");
+          }
+        }
+        uart_puts("\n*.* Group1_OS *.* > ");
+        uart_puts(cli_buffer);
       }
     } else if (c == '\r' || c == '\n') { // Handle Enter key
       cli_buffer[index] = '\0';
