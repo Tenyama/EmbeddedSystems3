@@ -1,9 +1,9 @@
 // ----------------------------------- framebf.c
 // -------------------------------------
-#include "mbox.h"
+#include "./mbox.h"
 // #include "../uart/uart0.h"
 #include "../uart/uart1.h"
-#include "menu.h"
+#include "./menu.h"
 
 // Use RGBA32 (32 bits for each pixel)
 #define COLOR_DEPTH 32
@@ -41,7 +41,7 @@ void framebf_init() {
   mBuf[9] = 0;
   mBuf[10] = 1024;
   mBuf[11] = 768;
-  
+
   mBuf[12] = MBOX_TAG_SETVIRTOFF; // Set virtual offset
   mBuf[13] = 8;
   mBuf[14] = 0;
@@ -264,40 +264,25 @@ void cli() {
     char command[MAX_CMD_SIZE];
     string_copy(command, cli_buffer + 5); // Skip "help " and copy the rest
     handle_help_command(command);
-    } 
-    else if (string_compare(cli_buffer, "help")) 
-    {
-      draw_command_table(); // Show the command menu if just "help" is entered
-    } // Handle baudrate command
-    else if (string_starts_with(cli_buffer, "baudrate ")) 
-    {
-      handle_baudrate_command_uart1(cli_buffer);
-    }
-    // Handle stopbits command
-    else if (string_starts_with(cli_buffer, "stopbits ")) 
-    {
-      handle_stopbits_command_uart1(cli_buffer);
-    }
-    else if (string_compare(cli_buffer, "showinfo")) 
-    {
-      display_board_info(); // da ra output nhung chua check dung hay k
-    }
-    else if (string_compare(cli_buffer, "checkbaudrate")) 
-    {
-      check_baudrate_uart1();
-    } 
-    else if (string_compare(cli_buffer, "checkstopbits")) 
-    {
-      check_stopbits_uart1();
-    }
-    else if (string_compare(cli_buffer, "exit")) 
-    {
-      uart_puts("Shutting down...\n");
-      asm volatile("wfi");
-    } 
-    else 
-    {
-      uart_puts("Invalid command format. Use 'help' or 'help <command_name>' to "
+  } else if (string_compare(cli_buffer, "help")) {
+    draw_command_table(); // Show the command menu if just "help" is entered
+  } else if (string_starts_with(cli_buffer,
+                                "baudrate ")) { // Handle baudrate command
+    handle_baudrate_command_uart1(cli_buffer);
+  } else if (string_starts_with(cli_buffer,
+                                "stopbits ")) { // Handle stopbits command
+    handle_stopbits_command_uart1(cli_buffer);
+  } else if (string_compare(cli_buffer, "showinfo")) {
+    display_board_info(); // da ra output nhung chua check dung hay k
+  } else if (string_compare(cli_buffer, "checkbaudrate")) {
+    check_baudrate_uart1();
+  } else if (string_compare(cli_buffer, "checkstopbits")) {
+    check_stopbits_uart1();
+  } else if (string_compare(cli_buffer, "exit")) {
+    uart_puts("Shutting down...\n");
+    asm volatile("wfi");
+  } else {
+    uart_puts("Invalid command format. Use 'help' or 'help <command_name>' to "
               "get valid commands.\n");
-    }
+  }
 }

@@ -1,8 +1,8 @@
 /*This file handles the commands format*/
+#include "./menu.h"
 #include "../uart/uart1.h"
-#include "framebf.h"
-#include "mbox.h"
-#include "menu.h"
+#include "./framebf.h"
+#include "./mbox.h"
 // #include "framebf.c"
 
 #define MAX_CMD_SIZE 100
@@ -195,39 +195,41 @@ void display_board_info() {
  */
 
 int string_to_int(const char *str) {
-    int result = 0;
-    while (*str >= '0' && *str <= '9') {
-        result = result * 10 + (*str - '0');
-        str++;
-    }
-    return result;
+  int result = 0;
+  while (*str >= '0' && *str <= '9') {
+    result = result * 10 + (*str - '0');
+    str++;
+  }
+  return result;
 }
 void handle_baudrate_command_uart1(char *command) {
-    char *baudrate_value = command + 9;  // Skip "baudrate "
-    while (*baudrate_value == ' ') baudrate_value++;  // Trim spaces
-    int baudrate = string_to_int(baudrate_value);  // Convert string to int
+  char *baudrate_value = command + 9; // Skip "baudrate "
+  while (*baudrate_value == ' ')
+    baudrate_value++;                       // Trim spaces
+  baudrate = string_to_int(baudrate_value); // Convert string to int
 
-    if (baudrate == 115200 || baudrate == 9600) {
-        set_baudrate_uart1(baudrate);  // Set baudrate
-    } else {
-        uart_puts("Invalid baudrate. Use 'baudrate 9600' or 'baudrate 115200'.\n");
-    }
+  if (baudrate == 115200 || baudrate == 9600) {
+    set_baudrate_uart1(baudrate);
+  } else {
+    uart_puts("Invalid baudrate. Use 'baudrate 9600' or 'baudrate 115200'.\n");
+  }
 }
 
 /**
  * Handle stopbits command (e.g., "stopbits 1" or "stopbits 2")
  */
 void handle_stopbits_command_uart1(char *command) {
-    char *stopbit_value = command + 9;  // Skip "stopbits "
-    while (*stopbit_value == ' ') stopbit_value++;  // Trim spaces
+  char *stopbit_value = command + 9; // Skip "stopbits "
+  while (*stopbit_value == ' ')
+    stopbit_value++; // Trim spaces
 
-    if (string_compare(stopbit_value, "1")) {
-        set_stopbits_uart1(1);  // Set to 1 stop bit
-    } else if (string_compare(stopbit_value, "2")) {
-        set_stopbits_uart1(2);  // Set to 2 stop bits (not supported by Mini UART)
-    } else {
-        uart_puts("Invalid stopbits value. Use 'stopbits 1'.\n");
-    }
+  if (string_compare(stopbit_value, "1")) {
+    set_stopbits_uart1(1); // Set to 1 stop bit
+  } else if (string_compare(stopbit_value, "2")) {
+    set_stopbits_uart1(2); // Set to 2 stop bits (not supported by Mini UART)
+  } else {
+    uart_puts("Invalid stopbits value. Use 'stopbits 1'.\n");
+  }
 }
 void draw_command_table() {
 
