@@ -107,17 +107,19 @@ void handle_help_command(char command[]) {
               "9600                                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
-  } else if (string_compare(command, "stopbit")) {
+  } else if (string_compare(command, "stopbits")) {
     uart_puts("\n+-----------+----------------------+--------------------------"
               "------------------------------------+\n");
     uart_puts("| Command # | Command Name         | Usage                      "
               "                                    |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
-    uart_puts("|           | stopbit              | The stopbit can be set to "
-              "the values such as: 1, 2             |\n");
-    uart_puts("|           |                      | Example: MyOS> stopbit 1   "
-              "                                    |\n");
+    uart_puts(
+        "|           | stopbits              | The stopbits can be set to "
+        "the values such as: 1, 2             |\n");
+    uart_puts(
+        "|           |                      | Example: MyOS> stopbits 1   "
+        "                                    |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
     // Set stopbit logic here

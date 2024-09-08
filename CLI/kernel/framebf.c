@@ -17,7 +17,7 @@
 #define DELETE 127
 #define COMMAND_SIZE 9
 static char *command_list[] = {"clear",         "help",      "showinfo",
-                               "baudrate",      "stopbit",   "clear",
+                               "baudrate",      "stopbits",  "clear",
                                "display image", "play game", "exit"};
 // Screen info
 unsigned int width, height, pitch;
