@@ -1,5 +1,6 @@
 // #include "../uart/uart0.h"
 #include "../uart/uart1.h"
+#include "./cli.h"
 #include "./framebf.h"
 #include "./mbox.h"
 #include "./menu.h"
