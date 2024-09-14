@@ -1,4 +1,2 @@
-void wait_msec(unsigned int msVal);
-void playVideo();
-
-
+// void wait_msec(unsigned int msVal);
+// void playVideo();

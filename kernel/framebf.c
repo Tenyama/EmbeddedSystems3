@@ -13,15 +13,6 @@
 // Pixel Order: BGR in memory order (little endian --> RGB in byte order)
 #define PIXEL_ORDER 0
 
-#define MAX_CMD_SIZE 100
-#define HISTORY_SIZE 10
-#define BACKSPACE 8
-#define DELETE 127
-#define COMMAND_SIZE 9
-// Remember to chang COMMAND_SIZE when adding/removing commands
-static char *command_list[] = {"help",      "showinfo", "baudrate",
-                               "stopbits",  "clear",    "display image",
-                               "play game", "exit",     "draw"};
 // Screen info
 unsigned int width, height, pitch;
 
