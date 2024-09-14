@@ -8,11 +8,11 @@
 #define HISTORY_SIZE 10
 #define BACKSPACE 8
 #define DELETE 127
-#define COMMAND_SIZE 9
+#define COMMAND_SIZE 8
 // Remember to chang COMMAND_SIZE when adding/removing commands
 static char *command_list[] = {"help",      "showinfo", "baudrate",
                                "stopbits",  "clear",    "display image",
-                               "play game", "exit",     "display video"};
+                               "play game", "exit"};
 void cli() {
   static char history[HISTORY_SIZE][MAX_CMD_SIZE]; // Pre-allocate history
   static char cli_buffer[MAX_CMD_SIZE];
@@ -50,20 +50,25 @@ void cli() {
       }
     } else if (c == '\t') { // handle match
       if (string_starts_with(cli_buffer, "help") && index >= 5) {
+        cli_buffer[index] = '\0';
         char *match = "";
+        int match_check = 0;
 
         for (int i = 0; i < COMMAND_SIZE; i++) {
           if (string_starts_with(command_list[i], cli_buffer + 5)) {
             match = command_list[i];
+            match_check = 1;
           }
         }
-        string_copy(cli_buffer + 5, match);
-        for (int i = 1; i < index - 5; i++) {
+        if (match_check) {
+          string_copy(cli_buffer + 5, match);
+          for (int i = 1; i < index - 5; i++) {
+            uart_puts("\b \b");
+          }
           uart_puts("\b \b");
+          index = string_length(cli_buffer);
+          uart_puts(match);
         }
-        uart_puts("\b \b");
-        index = string_length(cli_buffer);
-        uart_puts(match);
       } else {
         cli_buffer[index] = '\0';
 
