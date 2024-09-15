@@ -36,8 +36,8 @@ void framebf_init() {
   mBuf[7] = MBOX_TAG_SETVIRTWH; // Set virtual width-height
   mBuf[8] = 8;
   mBuf[9] = 0;
-  mBuf[10] = 1200;
-  mBuf[11] = 1600;
+  mBuf[10] = 600;
+  mBuf[11] = 800;
 
   mBuf[12] = MBOX_TAG_SETVIRTOFF; // Set virtual offset
   mBuf[13] = 8;
@@ -224,17 +224,18 @@ void draw_string(int x, int y, const char *str, unsigned int color, int scale) {
     x += 8 * scale; // Move x for the next character
   }
 }
-//display video
-void drawImageVideo(int start_x, int start_y, const unsigned int data[], int imageWidth, int imageHeight) {
-    int index = 0;
-    for (int y = start_y; y < start_y + imageHeight; y++) {
-        for (int x = start_x; x < start_x + imageWidth; x++) {
-            if (data[index] != 0) { // Only draw if the pixel is not black
-                drawPixelARGB32(x, y, data[index]);
-            }else { // If the pixel is black, clear it
-                drawPixelARGB32(x, y, 0x00000000); // Set to black
-            }
-            index++;
-        }
+// display video
+void drawImageVideo(int start_x, int start_y, const unsigned int data[],
+                    int imageWidth, int imageHeight) {
+  int index = 0;
+  for (int y = start_y; y < start_y + imageHeight; y++) {
+    for (int x = start_x; x < start_x + imageWidth; x++) {
+      if (data[index] != 0) { // Only draw if the pixel is not black
+        drawPixelARGB32(x, y, data[index]);
+      } else {                             // If the pixel is black, clear it
+        drawPixelARGB32(x, y, 0x00000000); // Set to black
+      }
+      index++;
     }
+  }
 }
