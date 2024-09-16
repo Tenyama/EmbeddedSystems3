@@ -1,18 +1,21 @@
 
 #include "./mbox.h"
 // #include "../uart/uart0.h"
+#include "../game/background.h"
+#include "../game/balls.h"
 #include "../uart/uart1.h"
-#include "./draw.h"
-#include "./menu.h"
+#include "draw.h"
+#include "menu.h"
+// #include "./video.h"
 #define MAX_CMD_SIZE 100
 #define HISTORY_SIZE 10
 #define BACKSPACE 8
 #define DELETE 127
-#define COMMAND_SIZE 8
+#define COMMAND_SIZE 9
 // Remember to chang COMMAND_SIZE when adding/removing commands
-static char *command_list[] = {"help",      "showinfo", "baudrate",
-                               "stopbits",  "clear",    "display image",
-                               "play game", "exit"};
+static char *command_list[] = {"help",     "showinfo", "baudrate",
+                               "stopbits", "clear",    "display image",
+                               "game",     "exit",     "play video"};
 void cli() {
   static char history[HISTORY_SIZE][MAX_CMD_SIZE]; // Pre-allocate history
   static char cli_buffer[MAX_CMD_SIZE];
@@ -49,38 +52,60 @@ void cli() {
         index = string_length(cli_buffer);
       }
     } else if (c == '\t') { // handle match
-      cli_buffer[index] = '\0';
+      if (string_starts_with(cli_buffer, "help") && index >= 5) {
+        cli_buffer[index] = '\0';
+        char *match = "";
+        int match_check = 0;
 
-      char *match = "";
-      int match_count = 0;
-
-      for (int i = 0; i < COMMAND_SIZE; i++) {
-        if (string_starts_with(command_list[i], cli_buffer)) {
-          if (match_count == 0) {
+        for (int i = 0; i < COMMAND_SIZE; i++) {
+          if (string_starts_with(command_list[i], cli_buffer + 5)) {
             match = command_list[i];
+            match_check = 1;
           }
-          match_count++;
         }
-      }
-
-      if (match_count == 1) {
-        string_copy(cli_buffer, match);
-        for (int i = 1; i < index; i++) {
+        if (match_check) {
+          string_copy(cli_buffer + 5, match);
+          for (int i = 1; i < index - 5; i++) {
+            uart_puts("\b \b");
+          }
           uart_puts("\b \b");
+          index = string_length(cli_buffer);
+          uart_puts(match);
         }
-        uart_puts("\b \b");
-        index = string_length(cli_buffer);
-        uart_puts(match);
-      } else if (match_count > 1) {
-        uart_puts("\nPossible matches:\n");
+      } else {
+        cli_buffer[index] = '\0';
+
+        char *match = "";
+        int match_count = 0;
+
         for (int i = 0; i < COMMAND_SIZE; i++) {
           if (string_starts_with(command_list[i], cli_buffer)) {
-            uart_puts(command_list[i]);
-            uart_puts("\t");
+            if (match_count == 0) {
+              match = command_list[i];
+            }
+            match_count++;
           }
         }
-        uart_puts("\n*.* Group1_OS *.* > ");
-        uart_puts(cli_buffer);
+
+        if (match_count == 1) {
+          string_copy(cli_buffer, match);
+          for (int i = 1; i < index; i++) {
+            uart_puts("\b \b");
+          }
+          uart_puts("\b \b");
+          index = string_length(cli_buffer);
+          uart_puts(match);
+        } else if (match_count > 1) {
+          uart_puts("\nPossible matches:\n");
+          for (int i = 0; i < COMMAND_SIZE; i++) {
+            if (string_starts_with(command_list[i], cli_buffer)) {
+              uart_puts(command_list[i]);
+              uart_puts("\t");
+            }
+          }
+          uart_puts("\n*.* Group1_OS *.* > ");
+          uart_puts(cli_buffer);
+        }
       }
     } else if (c == '\r' || c == '\n') { // Handle Enter key
       cli_buffer[index] = '\0';
@@ -125,6 +150,18 @@ void cli() {
     check_stopbits_uart1();
   } else if (string_compare(cli_buffer, "display image")) {
     draw();
+  } else if (string_compare(cli_buffer, "play video")) {
+    // playVideo();
+  } else if (string_compare(cli_buffer, "game")) {
+    drawImage(0, 0, myBackground, 700, 800);
+    initializeBalls();
+
+    // drawBallsMatrix();
+    copyBallsToScreen();
+
+    eraseBall(257,29);
+    testShootBall();
+
   } else if (string_compare(cli_buffer, "exit")) {
     uart_puts("Shutting down...\n");
     asm volatile("wfi");
