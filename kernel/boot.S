@@ -30,6 +30,3 @@ _start:
 4:  bl      main
     // In case it does return, halt the master core too
 	b       1b
-
-
-
