@@ -1,6 +1,12 @@
 #ifndef FRAMEBF_H
 #define FRAMEBF_H
 
+// extern unsigned int width, height, pitch;  // Declare these variables as extern
+
+// Function declarations from framebf.c
+void framebf_init(void);
+void drawPixelARGB32(int x, int y, unsigned int color);
+
 void framebf_init();
 void drawPixelARGB32(int x, int y, unsigned int attr);
 void drawRectARGB32(int x1, int y1, int x2, int y2, unsigned int attr,
