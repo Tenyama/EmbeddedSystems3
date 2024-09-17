@@ -6,6 +6,7 @@
 #include "../uart/uart1.h"
 #include "./draw.h"
 #include "./menu.h"
+#include "../game/player.h"
 // #include "./video.h"
 #define MAX_CMD_SIZE 100
 #define HISTORY_SIZE 10
@@ -155,8 +156,22 @@ void cli() {
   } else if (string_compare(cli_buffer, "game")) {
     drawImage(0, 0, myBackground, 600, 800);
     initializeBalls();
+    Player player;  // Create a Player instance
+
+    // Initialize the player with a starting score
+    initPlayer(&player);
+    
+    // Increase the player's score by 40
+    // After this, the screen will show "PLAYER SCORE: 40" without overlapping.
+
+    
     // drawBallsMatrix();
     copyBallsToScreen();
+    while(1) {
+    if(uart_getc() == 'c'){
+      increaseScore(&player, 40);
+    }
+    }
     // if (check_explosion(2, 4)) {
     //   uart_puts("\nKaboomboom\n");
     // } else {

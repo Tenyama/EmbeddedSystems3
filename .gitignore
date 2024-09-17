@@ -1,4 +1,5 @@
 .null-ls_930918_videoFrame.c
+Makefile
 # Ignore object files and compiled binaries
 *.o
 *.out
