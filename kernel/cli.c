@@ -1,18 +1,21 @@
 
 #include "./mbox.h"
 // #include "../uart/uart0.h"
+#include "../game/background.h"
+#include "../game/balls.h"
 #include "../uart/uart1.h"
 #include "./draw.h"
 #include "./menu.h"
+// #include "./video.h"
 #define MAX_CMD_SIZE 100
 #define HISTORY_SIZE 10
 #define BACKSPACE 8
 #define DELETE 127
-#define COMMAND_SIZE 8
+#define COMMAND_SIZE 9
 // Remember to chang COMMAND_SIZE when adding/removing commands
-static char *command_list[] = {"help",      "showinfo", "baudrate",
-                               "stopbits",  "clear",    "display image",
-                               "play game", "exit"};
+static char *command_list[] = {"help",     "showinfo", "baudrate",
+                               "stopbits", "clear",    "display image",
+                               "game",     "exit",     "play video"};
 void cli() {
   static char history[HISTORY_SIZE][MAX_CMD_SIZE]; // Pre-allocate history
   static char cli_buffer[MAX_CMD_SIZE];
@@ -147,6 +150,18 @@ void cli() {
     check_stopbits_uart1();
   } else if (string_compare(cli_buffer, "display image")) {
     draw();
+  } else if (string_compare(cli_buffer, "play video")) {
+    // playVideo();
+  } else if (string_compare(cli_buffer, "game")) {
+    drawImage(0, 0, myBackground, 600, 800);
+    initializeBalls();
+    // drawBallsMatrix();
+    copyBallsToScreen();
+    // if (check_explosion(2, 4)) {
+    //   uart_puts("\nKaboomboom\n");
+    // } else {
+    //   uart_puts("\nkys nigga\n");
+    // }
   } else if (string_compare(cli_buffer, "exit")) {
     uart_puts("Shutting down...\n");
     asm volatile("wfi");
