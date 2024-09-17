@@ -67,7 +67,7 @@ int rowsOnScreen = 0;
 // Function to initialize balls with random colors and positions, given the row
 // number
 void initializeBalls() {
-  int startX = 157; // Start drawing from the 157th pixel (adjust as necessary)
+  int startX = 256; // Start drawing from the 157th pixel (adjust as necessary)
   int spacing = 59; // Set spacing equal to ball diameter (59 pixels)
   int startY = 0;
   for (int row = 0; row < ROWS; row++) {
