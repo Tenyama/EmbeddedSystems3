@@ -2,9 +2,9 @@
 #include "../font/font.c"
 #include "../uart/uart1.h"
 #include "./framebf.h"
-#include "./image.h"
+// #include "./image.h"
 #include "./mbox.h"
-#include "menu.h"
+// #include "menu.h"
 
 int set_virtual_offset(unsigned int x_offset, unsigned int y_offset) {
   mBuf[0] =

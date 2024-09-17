@@ -5,7 +5,7 @@
 #include "../game/balls.h"
 #include "../uart/uart1.h"
 #include "./draw.h"
-#include "./menu.h"
+// #include "./menu.h"
 // #include "./video.h"
 #define MAX_CMD_SIZE 100
 #define HISTORY_SIZE 10
