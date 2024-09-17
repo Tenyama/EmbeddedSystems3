@@ -68,6 +68,7 @@ void updatePlayerScoreDisplay(Player *player) {
     drawRectARGB32(0, 0, SCORE_REGION_WIDTH - 1, height - 1, SCOREBOARD_BACKGROUND_COLOR, 1);
     drawRectARGB32(0, 0, SCORE_REGION_WIDTH - 1, height - 1, SCOREBOARD_BORDER_COLOR, 0);
 
+
     // Coordinates for text
     int x = 20;
     int y = 50;
