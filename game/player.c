@@ -5,7 +5,7 @@
 #include "../kernel/mbox.h"     // For mailbox handling
 
 
-#define SCORE_REGION_WIDTH 256
+#define SCORE_REGION_WIDTH 228
 #define SCOREBOARD_BORDER_COLOR 0xFFEA7F7D   // Black background for the score region (opaque)
 #define SCOREBOARD_BACKGROUND_COLOR 0xFF999999
 
