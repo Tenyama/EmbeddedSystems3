@@ -12,7 +12,7 @@
 //Pixel Order: BGR in memory order (little endian --> RGB in byte order)
 #define PIXEL_ORDER 0
 
-//Screen info
+// Screen info
 unsigned int width, height, pitch;
 
 /* Frame buffer address
@@ -38,7 +38,7 @@ void framebf_init()
     mBuf[7] = MBOX_TAG_SETVIRTWH; //Set virtual width-height
     mBuf[8] = 8;
     mBuf[9] = 0;
-    mBuf[10] = 1200;
+    mBuf[10] = 1400;
     mBuf[11] = 1600;
 
     mBuf[12] = MBOX_TAG_SETVIRTOFF; //Set virtual offset
@@ -264,43 +264,43 @@ void drawLCircle(int center_x, int center_y, int radius, unsigned int attr, int 
     }
 }
 
-void drawImageVideo(int start_x, int start_y, const unsigned int data[], int imageWidth, int imageHeight) {
-    int index = 0;
-    for (int y = start_y; y < start_y + imageHeight; y++) {
-        for (int x = start_x; x < start_x + imageWidth; x++) {
-            if (data[index] != 0) { // Only draw if the pixel is not black
-                drawPixelARGB32(x, y, data[index]);
-            }else { // If the pixel is black, clear it
-                drawPixelARGB32(x, y, 0x00000000); // Set to black
-            }
-            index++;
+void draw_char(int x, int y, char c, unsigned int color, int scale) {
+  if (c < 32 || c > 126)
+    return; // Ensure valid character range within 32 to 126
+
+  int index = c - 32; // Adjust for the starting character (space ' ')
+
+  for (int row = 0; row < FONT_HEIGHT; row++) {
+    for (int col = 0; col < FONT_WIDTH; col++) {
+      if (font_data[index][row] & (1 << (FONT_WIDTH - 1 - col))) {
+        // Scaling the character
+        for (int i = 0; i < scale; i++) {
+          for (int j = 0; j < scale; j++) {
+            drawPixelARGB32(x + col * scale + i, y + row * scale + j, color);
+          }
         }
+      }
     }
+  }
 }
-
-void drawImage(int start_x, int start_y, const unsigned int data[], int imageWidth, int imageHeight) {
-    int index = 0;
-    for (int y = 0; y < imageHeight; y++) {
-        for (int x = 0; x < imageWidth; x++) {
-            uint32_t pixelColor = data[y * imageWidth + x];
-            if (pixelColor != 0x00000000) { // Only draw if the pixel is not black
-                drawPixelARGB32(start_x + x, start_y + y, pixelColor);
-            }
-            index++;
-        }
+void draw_string(int x, int y, const char *str, unsigned int color, int scale) {
+  while (*str) {
+    draw_char(x, y, *str++, color, scale);
+    x += 8 * scale; // Move x for the next character
+  }
+}
+// display video
+void drawImageVideo(int start_x, int start_y, const unsigned int data[],
+                    int imageWidth, int imageHeight) {
+  int index = 0;
+  for (int y = start_y; y < start_y + imageHeight; y++) {
+    for (int x = start_x; x < start_x + imageWidth; x++) {
+      if (data[index] != 0) { // Only draw if the pixel is not black
+        drawPixelARGB32(x, y, data[index]);
+      } else {                             // If the pixel is black, clear it
+        drawPixelARGB32(x, y, 0x00000000); // Set to black
+      }
+      index++;
     }
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

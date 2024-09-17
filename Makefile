@@ -1,15 +1,13 @@
 #--------------------------------------Makefile-------------------------------------
 
-CFILES = $(wildcard ./kernel/*.c)
-OFILES = $(CFILES:./kernel/%.c=./build/%.o)
+CFILES = $(wildcard ./kernel/*.c) $(wildcard ./game/*.c)
+OFILES = $(CFILES:./kernel/%.c=./build/kernel/%.o)
+OFILES := $(OFILES:./game/%.c=./build/game/%.o)
 GCCFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib
 
 all: clean uart1_build kernel8.img run1
 uart1: clean uart1_build kernel8.img run1
 uart0: clean uart0_build kernel8.img run0
-
-#./build/uart.o: ./uart/uart1.c
-#	aarch64-none-elf-gcc $(GCCFLAGS) -c ./uart/uart1.c -o ./build/uart.o
 
 uart1_build: ./uart/uart1.c
 	aarch64-none-elf-gcc $(GCCFLAGS) -c ./uart/uart1.c -o ./build/uart.o
@@ -20,7 +18,13 @@ uart0_build: ./uart/uart0.c
 ./build/boot.o: ./kernel/boot.S
 	aarch64-none-elf-gcc $(GCCFLAGS) -c ./kernel/boot.S -o ./build/boot.o
 
-./build/%.o: ./kernel/%.c
+# For kernel and game files
+./build/kernel/%.o: ./kernel/%.c
+	mkdir -p ./build/kernel
+	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
+
+./build/game/%.o: ./game/%.c
+	mkdir -p ./build/game
 	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
 
 kernel8.img: ./build/boot.o ./build/uart.o $(OFILES)
@@ -28,7 +32,7 @@ kernel8.img: ./build/boot.o ./build/uart.o $(OFILES)
 	aarch64-none-elf-objcopy -O binary ./build/kernel8.elf kernel8.img
 
 clean:
-	del .\build\kernel8.elf .\build\*.o *.img
+	rm -f ./build/kernel8.elf ./build/*.o ./build/kernel/*.o ./build/game/*.o *.img
 
 # Run emulation with QEMU
 run1: 
