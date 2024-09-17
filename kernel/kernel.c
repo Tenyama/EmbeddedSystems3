@@ -5,7 +5,7 @@
 #include "framebf.h"
 #include "displayGameFrame.h"
 #include "game.h"
-#include "background.h"
+#include "../game/background.h"
 
 #define NULL ((void*)0)
 	extern unsigned char *fb;  // Declaration to use fb from framebf.c

@@ -1,7 +1,7 @@
 #include "../uart/uart0.h"
 #include "../uart/uart1.h"
 #include "framebf.h"
-#include "background.h"
+#include "../game/background.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180

@@ -2,7 +2,7 @@
 #include "./menu.h"
 #include "../uart/uart1.h"
 #include "./mbox.h"
-// #include "framebf.c"
+#include "framebf.h"
 
 #define MAX_CMD_SIZE 100
 #define BACKSPACE 8

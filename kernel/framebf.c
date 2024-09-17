@@ -2,6 +2,7 @@
 #include "mbox.h"
 #include "../uart/uart0.h"
 #include "../uart/uart1.h"
+#include"../font/font.h"
 // #include "videoFrame.h"
 #define NULL ((void*)0)
 

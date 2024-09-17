@@ -51,3 +51,7 @@ int mbox_call(unsigned int buffer_addr, unsigned char channel);
 #define MBOX_TAG_SETPXLORDR 0x48006
 #define MBOX_TAG_GETFB      0x40001
 #define MBOX_TAG_GETPITCH   0x40008
+
+// setup for "showinfo" command
+#define MBOX_TAG_GETBOARDREV 0x00010002
+#define MBOX_TAG_GETMACADDR 0x00010003
