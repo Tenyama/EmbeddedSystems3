@@ -27,4 +27,5 @@ void display_board_info();
 void handle_baudrate_command_uart1(char *command);
 void handle_stopbits_command_uart1(char *command);
 void int_to_str(int value, char *str);
+void clearScreen();
 #endif // MENU_H

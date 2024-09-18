@@ -7,6 +7,7 @@
 #define MAX_CMD_SIZE 100
 #define BACKSPACE 8
 #define DELETE 127
+#define CLEAR_COLOR 0x00000000  // Black color in ARGB format
 
 int stopbits = 1;
 
@@ -72,8 +73,8 @@ void handle_help_command(char command[]) {
               "                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "-------------------+\n");
-    uart_puts("|           | clear                | Clear screen (scroll down "
-              "to current cursor)  |\n");
+    uart_puts("|           | clear                | Clear QEMU screen          "
+              "                   |\n");
     uart_puts("|           |                      | Example: MyOS> clear       "
               "                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
@@ -95,13 +96,24 @@ void handle_help_command(char command[]) {
     // Exit logic here
   } else if (string_compare(command, "baudrate")) {
     uart_puts("\n+-----------+----------------------+--------------------------"
-              "------------------------------------+\n");
+              "--------------------------------------+\n");
     uart_puts("| Command # | Command Name         | Usage                      "
               "                                    |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
-    uart_puts("|           | baudrate             | The baudrate can be set to "
-              "the values such as: 9600, 115200,   |\n");
+    uart_puts("|           | baudrate             | The baudrate can be set to any values                          |\n");
+    uart_puts("|           |                      | Example: MyOS> baudrate "
+              "9600                                   |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------------------------+\n");
+  } else if (string_compare(command, "checkbaudrate")) {
+    uart_puts("\n+-----------+----------------------+--------------------------"
+              "--------------------------------------+\n");
+    uart_puts("| Command # | Command Name         | Usage                      "
+              "                                    |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------------------------+\n");
+    uart_puts("|           | checkbaudrate        | To check the baudrate values                                   |\n");
     uart_puts("|           |                      | Example: MyOS> baudrate "
               "9600                                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
@@ -270,87 +282,51 @@ void handle_stopbits_command_uart1(char *command) {
     uart_puts("Invalid stopbits value. Use 'stopbits 1'.\n");
   }
 }
+
+// Function to clear the entire screen
+void clearScreen() {
+    framebf_init();
+    // Get the current screen resolution
+    unsigned int width = mBuf[5];  // Screen width
+    unsigned int height = mBuf[6];  // Screen height
+
+    // Iterate over every pixel on the screen and set it to CLEAR_COLOR
+    for (unsigned int y = 0; y < height; y++) {
+        for (unsigned int x = 0; x < width; x++) {
+            drawPixelARGB32(x, y, CLEAR_COLOR);
+        }
+    }
+}
 void draw_command_table() {
-
-  // EDITTING FOR MORE READABLE OUTPUT
-  uart_puts("\n");
-  uart_puts("\n");
-  uart_puts("\n");
-  uart_puts("\n");
-
-  uart_puts("=================================================================="
-            "====================== \n");
-  uart_puts("||                                      COMMAND MENU              "
-            "                    || \n");
-  uart_puts("=================================================================="
-            "====================== \n ");
-
-  uart_puts("\n+-----------+----------------------+----------------------------"
-            "-------------------+\n");
-  uart_puts("| Command # | Command Name         | Usage                        "
-            "                 |\n");
-  uart_puts("+-----------+----------------------+------------------------------"
-            "-----------------+\n");
-
-  uart_puts("| 1         | help                 | Show brief information of "
-            "all commands        |\n");
-  uart_puts("|           |                      | Example: MyOS> help          "
-            "                 |\n");
-  uart_puts("|           | help <command_name>  | Show full information of a "
-            "specific command   |\n");
-  uart_puts("|           |                      | Example: MyOS> help showinfo "
-            "                 |\n");
-  uart_puts("+-----------+----------------------+------------------------------"
-            "-----------------+\n");
-
-  uart_puts("| 2         | clear                | Clear screen (scroll down to "
-            "current cursor)  |\n");
-  uart_puts("|           |                      | Example: MyOS> clear         "
-            "                 |\n");
-  uart_puts("+-----------+----------------------+------------------------------"
-            "-----------------+\n");
-
-  uart_puts("| 3         | showinfo             | Show board revision and MAC "
-            "address           |\n");
-  uart_puts("|           |                      | Example: MyOS> showinfo      "
-            "                 |\n");
-  uart_puts("+-----------+----------------------+------------------------------"
-            "-----------------+\n");
-
-  uart_puts("| 4         | baudrate             | Change UART baudrate         "
-            "                 |\n");
-  uart_puts("|           |                      | Example: MyOS> baudrate 9600 "
-            "                 |\n");
-  uart_puts("+-----------+----------------------+------------------------------"
-            "-----------------+\n");
-
-  uart_puts("| 5         | stopbit              | Change UART stopbit setting "
-            "to 1 or 2         |\n");
-  uart_puts("|           |                      | Example: MyOS> stopbit 1     "
-            "                 |\n");
-  uart_puts("+-----------+----------------------+------------------------------"
-            "-----------------+\n");
-
-  uart_puts("| 6         | display image        | Display the image of our "
-            "team                 |\n");
-  uart_puts("|           |                      | Example: MyOS> display image "
-            "                 |\n");
-  uart_puts("+-----------+----------------------+------------------------------"
-            "-----------------+\n");
-
-  uart_puts("| 7         | play game            | Start game and display in "
-            "QEMU                |\n");
-  uart_puts("|           |                      | Example: MyOS> play game     "
-            "                 |\n");
-  uart_puts("+-----------+----------------------+------------------------------"
-            "-----------------+\n");
-
-  uart_puts("| 8         | exit                 | exit                         "
-            "                 |\n");
-  uart_puts("|           |                      | Example: MyOS> exit          "
-            "                 |\n");
-  uart_puts("+-----------+----------------------+------------------------------"
-            "-----------------+\n");
+    uart_puts("                    ==================================== \n");
+    uart_puts("                    ||          COMMAND MENU          || \n");
+    uart_puts("                    ==================================== \n");
+    uart_puts("\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | Command # |     Command Name     |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 1         | help                 |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 2         | clear                |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 3         | showinfo             |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 4         | baudrate             |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 5         | checkbaudrate        |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 6         | stopbits             |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 7         | checkstopbits        |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 8         | display image        |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 9         | display video        |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 10        | game                 |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 11        | exit                 |\n");
+    uart_puts("                    +-----------+----------------------+\n");
 }
 
 void print_logo() {
@@ -442,7 +418,7 @@ void print_logo() {
             "+---------------------------+----------------------------+\n");
 
   uart_puts(
-      "           |         s3986878          |      PHUNG THI MINH ANH   |\n");
+      "           |         s3986878          |      PHUNG THI MINH ANH    |\n");
   uart_puts("           |                           |                          "
             "  |\n");
   uart_puts("           "
@@ -457,6 +433,8 @@ void print_logo() {
 
   uart_puts("           |         s3977955          |        LE THIEN SON      "
             "  |\n");
+  uart_puts("           |                           |                          "
+  "  |\n");
   uart_puts(
       "           "
       "+---------------------------+----------------------------+\n\n\n\n");
