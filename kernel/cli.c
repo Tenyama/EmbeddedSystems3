@@ -53,7 +53,7 @@ void cli() {
         index = string_length(cli_buffer);
       }
     } else if (c == '\t') { // handle match
-      if (string_starts_with(cli_buffer, "help") && index >= 5) {
+      if (string_starts_with(cli_buffer, "help ") && index >= 5) {
         cli_buffer[index] = '\0';
         char *match = "";
         int match_check = 0;
@@ -66,10 +66,9 @@ void cli() {
         }
         if (match_check) {
           string_copy(cli_buffer + 5, match);
-          for (int i = 1; i < index - 5; i++) {
+          for (int i = 0; i < index - 5; i++) {
             uart_puts("\b \b");
           }
-          uart_puts("\b \b");
           index = string_length(cli_buffer);
           uart_puts(match);
         }

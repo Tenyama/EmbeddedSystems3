@@ -6,7 +6,6 @@
 #include "./balls.h"
 #include "./displayGameFrame.h"
 #include "./player.h"
-#include "./scoreboard.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
