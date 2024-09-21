@@ -1,5 +1,5 @@
 #include "uart1.h"
-volatile unsigned int baudrate = 115200;
+volatile unsigned int baudrate;
 
 #define SYSTEM_CLOCK 250000000 // 250 MHz clock for Mini UART
 /**
@@ -7,6 +7,7 @@ volatile unsigned int baudrate = 115200;
  */
 void uart_init() {
   unsigned int r;
+  baudrate = 270;
 
   /* initialize UART */
   AUX_ENABLE |= 1;        // enable mini UART (UART1)
@@ -29,7 +30,7 @@ void uart_init() {
   GPFSEL1 = r;
 
   /* enable GPIO 14, 15 */
-#ifdef RPI3  // RPI3
+  // #ifdef RPI3  // RPI3
   GPPUD = 0; // No pull up/down control
   // Toogle clock to flush GPIO setup
   r = 150;
@@ -43,11 +44,11 @@ void uart_init() {
   } // waiting 150 cycles
   GPPUDCLK0 = 0; // flush GPIO setup
 
-#else // RPI4
+  // #else // RPI4
   r = GPIO_PUP_PDN_CNTRL_REG0;
   r &= ~((3 << 28) | (3 << 30)); // No resistor is selected for GPIO 14, 15
   GPIO_PUP_PDN_CNTRL_REG0 = r;
-#endif
+  // #endif
 
   AUX_MU_CNTL = 3; // enable transmitter and receiver (Tx, Rx)
 }

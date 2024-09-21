@@ -1,6 +1,7 @@
 /*This file handles the commands format*/
 #include "./menu.h"
 #include "../uart/uart1.h"
+#include "./draw.h"
 #include "./mbox.h"
 #include "framebf.h"
 
@@ -203,42 +204,43 @@ int string_to_int(const char *str) {
   }
   return result;
 }
-// Helper function to convert an integer to a string (manually, without libraries)
+// Helper function to convert an integer to a string (manually, without
+// libraries)
 void int_to_str(int value, char *str) {
-    int i = 0;
-    int is_negative = 0;
+  int i = 0;
+  int is_negative = 0;
 
-    // Handle negative numbers
-    if (value < 0) {
-        is_negative = 1;
-        value = -value;
-    }
+  // Handle negative numbers
+  if (value < 0) {
+    is_negative = 1;
+    value = -value;
+  }
 
-    // Process each digit and store it in the string
-    do {
-        str[i++] = (value % 10) + '0';  // Convert digit to character
-        value /= 10;
-    } while (value);
+  // Process each digit and store it in the string
+  do {
+    str[i++] = (value % 10) + '0'; // Convert digit to character
+    value /= 10;
+  } while (value);
 
-    // If the number was negative, add the '-' sign
-    if (is_negative) {
-        str[i++] = '-';
-    }
+  // If the number was negative, add the '-' sign
+  if (is_negative) {
+    str[i++] = '-';
+  }
 
-    // Null-terminate the string
-    str[i] = '\0';
+  // Null-terminate the string
+  str[i] = '\0';
 
-    // Reverse the string since we stored the digits in reverse order
-    int start = 0;
-    int end = i - 1;
-    char temp;
-    while (start < end) {
-        temp = str[start];
-        str[start] = str[end];
-        str[end] = temp;
-        start++;
-        end--;
-    }
+  // Reverse the string since we stored the digits in reverse order
+  int start = 0;
+  int end = i - 1;
+  char temp;
+  while (start < end) {
+    temp = str[start];
+    str[start] = str[end];
+    str[end] = temp;
+    start++;
+    end--;
+  }
 }
 
 void handle_baudrate_command_uart1(char *command) {
@@ -460,4 +462,5 @@ void print_logo() {
   uart_puts(
       "           "
       "+---------------------------+----------------------------+\n\n\n\n");
+  draw_string(80, 100, "HELLO", 0xFFFFFFFF, 5);
 }

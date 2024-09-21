@@ -1,4 +1,5 @@
 // #include "../uart/uart0.h"
+#include "../kernel/draw.h"
 #include "../font/font.c"
 #include "../uart/uart1.h"
 #include "./framebf.h"
@@ -31,7 +32,6 @@ int set_virtual_offset(unsigned int x_offset, unsigned int y_offset) {
 }
 void drawImage(int start_x, int start_y, const unsigned int data[], int width,
                int height) {
-  framebf_init();
   int index = 0;
   for (int y = start_y; y < start_y + height; y++) {
     for (int x = start_x; x < start_x + width; x++) {
@@ -44,7 +44,6 @@ void drawImage(int start_x, int start_y, const unsigned int data[], int width,
   }
 }
 void draw() {
-  framebf_init();
 
   drawImage(0, 0, myImage, 711, 654);
   // draw_string(222, 540, "Thao Trinh", 0xFFFF00, 4);  // Draw text at position

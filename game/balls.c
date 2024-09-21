@@ -96,8 +96,6 @@ void drawRowOfBalls(int row) {
 void copyBallsToScreen() {
   for (int i = 0; i < COLS; i++) {
     viewableBalls[rowsOnScreen][i] = balls[rowsOnScreen][i];
-    uart_hex(i);
-    uart_puts("  ");
   }
 
   drawRowOfBalls(rowsOnScreen);

@@ -9,7 +9,6 @@
 // Function to overlay the scoreboard on the left-ha`d side
 void displayScoreRegion() {
   // Draw a black rectangle in the grey space (SCORE_REGION_WIDTH wide)
-  framebf_init();
   int height = mBuf[6]; // Actual physical height
   drawRectARGB32(0, 0, SCORE_REGION_WIDTH - 1, height - 1,
                  SCOREBOARD_BACKGROUND_COLOR, 1);
