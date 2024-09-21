@@ -87,8 +87,7 @@ void handle_help_command(char command[]) {
               "                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "-------------------+\n");
-    uart_puts("|           | clear                | Clear screen (scroll down "
-              "to current cursor)  |\n");
+    uart_puts("|           | exit                 | Exit the program                              |\n");
     uart_puts("|           |                      | Example: MyOS> clear       "
               "                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
@@ -103,7 +102,7 @@ void handle_help_command(char command[]) {
               "------------------------------------+\n");
     uart_puts("|           | baudrate             | The baudrate can be set to any values                          |\n");
     uart_puts("|           |                      | Example: MyOS> baudrate "
-              "9600                                   |\n");
+              "                                       |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
   } else if (string_compare(command, "checkbaudrate")) {
@@ -114,44 +113,71 @@ void handle_help_command(char command[]) {
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
     uart_puts("|           | checkbaudrate        | To check the baudrate values                                   |\n");
-    uart_puts("|           |                      | Example: MyOS> baudrate "
-              "9600                                   |\n");
+    uart_puts("|           |                      | Example: MyOS> checkbaudrate "
+              "9600                              |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
   } else if (string_compare(command, "stopbits")) {
     uart_puts("\n+-----------+----------------------+--------------------------"
-              "------------------------------------+\n");
+              "--------------------------------------+\n");
     uart_puts("| Command # | Command Name         | Usage                      "
               "                                    |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
     uart_puts(
-        "|           | stopbits              | The stopbits can be set to "
-        "the values such as: 1, 2             |\n");
+        "|           | stopbits             | The stopbits can be set to "
+        "the values such as: 1, 2            |\n");
     uart_puts(
         "|           |                      | Example: MyOS> stopbits 1   "
-        "                                    |\n");
+        "                                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
     // Set stopbit logic here
-  } else if (string_compare(command, "display image")) {
+  } else if (string_compare(command, "checkstopbits")) {
     uart_puts("\n+-----------+----------------------+--------------------------"
-              "------------------------------------+\n");
+              "----+\n");
     uart_puts("| Command # | Command Name         | Usage                      "
-              "                                    |\n");
+              "  |\n");
     uart_puts("+-----------+----------------------+----------------------------"
-              "------------------------------------+\n");
-    uart_puts("|           | baudrate             | The baudrate can be set to "
-              "the values such as: 9600, 115200,   |\n");
-    uart_puts("|           |                      | Example: MyOS> baudrate "
-              "9600                                   |\n");
+              "--+\n");
+    uart_puts(
+        "|           | checkstopbits        | To check the stopbits  "
+        "      |\n");
+    uart_puts(
+        "|           |                      | Example: MyOS> checkstopbits"
+        " |\n");
     uart_puts("+-----------+----------------------+----------------------------"
-              "------------------------------------+\n");
+              "--+\n");
+    // Set stopbit logic here
+  }else if (string_compare(command, "display image")) {
+    uart_puts("\n+-----------+----------------------+--------------------------"
+              "--------------------+\n");
+    uart_puts("| Command # | Command Name         | Usage                      "
+              "                  |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------+\n");
+    uart_puts("|           | display image        | Display team image                           |\n");
+    uart_puts("|           |                      | Example: MyOS> display image"
+              "                 |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------+\n");
     // Call a function to display the image here
-  } else if (string_compare(command, "play game")) {
-    uart_puts("Starting game...\n");
-    // Call a function to start the game
-  } else {
+  } else if (string_compare(command, "game")) {
+    uart_puts("\n+-----------+----------------------+--------------------------"
+              "--------------------------------+\n");
+    uart_puts("| Command # | Command Name         | Usage                      "
+              "                              |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------------------+\n");
+    uart_puts(
+        "|           | game                 | To start playing Dynomite                                |\n");
+    uart_puts(
+        "|           |                      | Example: MyOS> game   "
+        "                                   |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------------------+\n");
+    // Set stopbit logic here
+  }else {
     uart_puts("Unknown command: ");
     uart_puts(command);
     uart_puts("\n");
