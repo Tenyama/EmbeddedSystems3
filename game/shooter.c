@@ -9,7 +9,7 @@
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
-#define ANGLE_STEP 10
+#define ANGLE_STEP 5
 #define SCREEN_WIDTH 700
 #define SCREEN_HEIGHT 800
 
@@ -24,21 +24,35 @@
 int shooter_angle = 90; // Start at 90 degrees (straight up)
 
 // Lookup tables for sine and cosine values (multiplied by 1000 to avoid float)
-const int sine_table[19] = {0,   174, 342, 500, 643, 766, 866, 940, 985, 1000,
-                            985, 940, 866, 766, 643, 500, 342, 174, 0};
-const int cosine_table[19] = {1000, 985,  940,  866,  766,  643,  500,
-                              342,  174,  0,    -174, -342, -500, -643,
-                              -766, -866, -940, -985, -1000};
+// const int sine_table[19] = {0,   174, 342, 500, 643, 766, 866, 940, 985, 1000,
+//                             985, 940, 866, 766, 643, 500, 342, 174, 0};
+// const int cosine_table[19] = {1000, 985,  940,  866,  766,  643,  500,
+//                               342,  174,  0,    -174, -342, -500, -643,
+//                               -766, -866, -940, -985, -1000};
+
+const int sine_table[37] = {
+    0,    87,   173,  258,  342,  422,  500,  573,  642,  707, 
+    766,  819,  866,  906,  939,  965,  984,  996,  1000, 
+    996,  984,  965,  939,  906,  866,  819,  766,  707,  642,
+    573,  500,  422,  342,  258,  173,  87,   0
+};
+
+const int cosine_table[37] = {
+    1000, 996,  984,  965,  939,  906,  866,  819,  766,  707,
+    642,  573,  500,  422,  342,  258,  173,  87,   0, 
+    -87,  -173, -258, -342, -422, -500, -573, -642, -707, -766,
+    -819, -866, -906, -939, -965, -984, -996, -1000
+};
 
 // Function to get sine value from the lookup table based on the angle
 int get_sine(int angle) {
-  return sine_table[angle / 10]; // Divide by 10 to get the index for the table
+  return sine_table[angle / 5]; // Divide by 10 to get the index for the table
 }
 
 // Function to get cosine value from the lookup table based on the angle
 int get_cosine(int angle) {
   return cosine_table[angle /
-                      10]; // Divide by 10 to get the index for the table
+                      5]; // Divide by 10 to get the index for the table
 }
 
 // Function to calculate the endpoint of the shooter based on the angle
