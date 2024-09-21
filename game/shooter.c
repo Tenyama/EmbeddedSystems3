@@ -9,7 +9,7 @@
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
-#define ANGLE_STEP 10
+#define ANGLE_STEP 15
 #define SCREEN_WIDTH 700
 #define SCREEN_HEIGHT 800
 
