@@ -6,15 +6,17 @@
 #include "./draw.h"
 #include "./menu.h"
 // #include "./video.h"
+#include "./framebf.h"
 #define MAX_CMD_SIZE 100
 #define HISTORY_SIZE 10
 #define BACKSPACE 8
 #define DELETE 127
-#define COMMAND_SIZE 9
+#define COMMAND_SIZE 11
 // Remember to chang COMMAND_SIZE when adding/removing commands
-static char *command_list[] = {"help",     "showinfo", "baudrate",
-                               "stopbits", "clear",    "display image",
-                               "game",     "exit",     "play video"};
+static char *command_list[] = {"help",          "showinfo",     "baudrate",
+                               "stopbits",      "clear",        "display image",
+                               "game",          "exit",         "play video",
+                               "checkbaudrate", "checkstopbits"};
 void cli() {
   static char history[HISTORY_SIZE][MAX_CMD_SIZE]; // Pre-allocate history
   static char cli_buffer[MAX_CMD_SIZE];

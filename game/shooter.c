@@ -1,7 +1,12 @@
+#include "../kernel/draw.h"
 #include "../kernel/framebf.h"
 #include "../uart/uart0.h"
 #include "../uart/uart1.h"
 #include "./background.h"
+#include "./balls.h"
+#include "./displayGameFrame.h"
+#include "./player.h"
+#include "./scoreboard.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
@@ -53,20 +58,15 @@ void calculateShooterEndpoint(int base_x, int base_y, int shooter_angle,
   } else if (*end_x < 228) {
     *end_x = 228;
 
-    // Convert cosine_val to floating-point and adjust shooter length
     float cosine_float =
         cosine_val / 1000.0; // Convert to floating point by dividing by 1000
     if (cosine_float < 0) {
       cosine_float = -cosine_float; // Make sure cosine value is positive
     }
 
-    // Adjust shooter length based on cosine value
-    shooter_length_dummy =
-        (int)(241 / cosine_float); // Use floating point division, then cast
-                                   // back to int
+    shooter_length_dummy = (int)(241 / cosine_float);
   }
 
-  // Adjust the y-coordinate based on the new shooter length
   *end_y = base_y - (sine_val * shooter_length_dummy) / 1000;
 }
 
@@ -86,50 +86,57 @@ void drawBackgroundPixel(int x, int y) {
 // Function to erase the shooter by restoring the part of the background it
 // covered
 void eraseShooter(int base_x, int base_y, int shooter_angle) {
-  // Calculate sine and cosine for the angle
   int sine_val = get_sine(shooter_angle);
   int cosine_val = get_cosine(shooter_angle);
 
-  // Loop through the length of the shooter
   for (int i = 0; i < SHOOTER_LENGTH; i++) {
-    // Loop through the width of the shooter (10 pixels)
     for (int j = -4; j <= 4; j++) {
-      // Calculate the x and y positions for the shooter based on angle and
-      // thickness
-      int x = base_x + (cosine_val * i - sine_val * j) /
-                           1000; // X position considering thickness
-      int y = base_y - (sine_val * i + cosine_val * j) /
-                           1000; // Y position considering thickness
+      int x = (base_x * 1000) + (cosine_val * i - sine_val * j);
+      int y = (base_y * 1000) - (sine_val * i + cosine_val * j);
 
-      // Check bounds before restoring the background
-      if (x >= 0 && x < 700 && y >= 0 && y < 800) {
-        drawBackgroundPixel(x, y); // Restore the pixel from the background
+      // Manual rounding: adding 500 to shift toward the nearest integer
+      int rounded_x = (x + 500) / 1000;
+      int rounded_y = (y + 500) / 1000;
+
+      if (rounded_x >= 0 && rounded_x < 700 && rounded_y >= 0 &&
+          rounded_y < 800) {
+        drawBackgroundPixel(rounded_x, rounded_y);
       }
+      if (rounded_x + 1 < 700)
+        drawBackgroundPixel(rounded_x + 1, rounded_y);
+      if (rounded_y + 1 < 800)
+        drawBackgroundPixel(rounded_x, rounded_y + 1);
     }
   }
 }
 
 // Function to draw the shooter at the new position
 void drawShooter(int base_x, int base_y, int shooter_angle) {
-  // Calculate sine and cosine for the angle
   int sine_val = get_sine(shooter_angle);
   int cosine_val = get_cosine(shooter_angle);
 
-  // Loop through the length of the shooter
   for (int i = 0; i < SHOOTER_LENGTH; i++) {
-    // Loop through the width of the shooter (10 pixels)
     for (int j = -4; j <= 4; j++) {
-      // Calculate the x and y positions for the shooter based on angle and
-      // thickness
-      int x = base_x + (cosine_val * i - sine_val * j) /
-                           1000; // X position considering thickness
-      int y = base_y - (sine_val * i + cosine_val * j) /
-                           1000; // Y position considering thickness
+      // Calculating x and y based on shooter angle and length
+      int x = (base_x * 1000) + (cosine_val * i - sine_val * j);
+      int y = (base_y * 1000) - (sine_val * i + cosine_val * j);
 
-      // Check bounds before drawing the shooter
-      if (x >= 0 && x < 700 && y >= 0 && y < 800) {
-        drawPixelARGB32(x, y, 0x00C00000); // Draw the shooter pixel (red color)
+      // Manual rounding: adding 500 to shift toward the nearest integer
+      int rounded_x = (x + 500) / 1000;
+      int rounded_y = (y + 500) / 1000;
+
+      // Checking if the rounded coordinates are within screen boundaries
+      if (rounded_x >= 0 && rounded_x < 700 && rounded_y >= 0 &&
+          rounded_y < 800) {
+        drawPixelARGB32(rounded_x, rounded_y,
+                        0x00C00000); // Draw the shooter pixel (red color)
       }
+
+      // Optional: Filling nearby pixels to cover gaps
+      if (rounded_x + 1 < 700)
+        drawPixelARGB32(rounded_x + 1, rounded_y, 0x00C00000);
+      if (rounded_y + 1 < 800)
+        drawPixelARGB32(rounded_x, rounded_y + 1, 0x00C00000);
     }
   }
 }
@@ -201,16 +208,25 @@ void move_right() {
 }
 
 void moveShooter() {
+  initializeBalls();
+  Player player;
+  initPlayer(&player);
+  copyBallsToScreen();
   uart_puts("\nPress A to move shooter to left: ");
   uart_puts("\nPress D to move shooter to right: ");
   drawShooter(BASE_X, BASE_Y, shooter_angle); // Draw initial shooter
-
   while (1) {
     char input = uart_getc();
     if (input == 'a') {
       move_left();
+      copyBallsToScreen();
     } else if (input == 'd') {
       move_right();
+      copyBallsToScreen();
+    } else if (input == 'q') {
+      uart_puts("\n");
+      break;
     }
+    updatePlayerScoreDisplay(&player);
   }
 }

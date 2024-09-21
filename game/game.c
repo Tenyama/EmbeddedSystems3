@@ -5,16 +5,8 @@
 #include "./displayGameFrame.h"
 #include "./player.h"
 #include "./scoreboard.h"
+#include "shooter.h"
 void playGame() {
   drawImage(0, 0, myBackground, 700, 800);
-  initializeBalls();
-  Player player;
-  initPlayer(&player);
-  // drawBallsMatrix();
-  copyBallsToScreen();
-  while (1) {
-    if (uart_getc() == 'c') {
-      increaseScore(&player, 40);
-    }
-  }
+  moveShooter();
 }
