@@ -13,9 +13,10 @@
 #define DELETE 127
 #define COMMAND_SIZE 11
 // Remember to chang COMMAND_SIZE when adding/removing commands
-static char *command_list[] = {"help",     "showinfo", "baudrate",
-                               "stopbits", "clear",    "display image",
-                               "game",     "exit",     "play video"};
+static char *command_list[] = {"help",          "showinfo",     "baudrate",
+                               "stopbits",      "clear",        "display image",
+                               "game",          "exit",         "play video",
+                               "checkbaudrate", "checkstopbits"};
 void cli() {
   static char history[HISTORY_SIZE][MAX_CMD_SIZE]; // Pre-allocate history
   static char cli_buffer[MAX_CMD_SIZE];
@@ -152,8 +153,6 @@ void cli() {
     draw();
   } else if (string_compare(cli_buffer, "play video")) {
     // playVideo();
-  } else if (string_compare(cli_buffer, "clear")) {
-    clearScreen();
   } else if (string_compare(cli_buffer, "game")) {
     playGame();
   } else if (string_compare(cli_buffer, "exit")) {
