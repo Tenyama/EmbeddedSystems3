@@ -4,9 +4,9 @@
 #include "../game/game.h"
 #include "../uart/uart1.h"
 #include "./draw.h"
-#include "./menu.h"
-// #include "./video.h"
 #include "./framebf.h"
+#include "./menu.h"
+#include "./video.h"
 #define MAX_CMD_SIZE 100
 #define HISTORY_SIZE 10
 #define BACKSPACE 8
@@ -151,7 +151,7 @@ void cli() {
   } else if (string_compare(cli_buffer, "display image")) {
     draw();
   } else if (string_compare(cli_buffer, "play video")) {
-    // playVideo();
+    playVideo();
   } else if (string_compare(cli_buffer, "game")) {
     playGame();
   } else if (string_compare(cli_buffer, "exit")) {
