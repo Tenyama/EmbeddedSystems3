@@ -5,6 +5,7 @@
 #include "./background.h"
 #include "./balls.h"
 #include "./displayGameFrame.h"
+#include "./interrupt.h"
 #include "./player.h"
 
 #define MIN_ANGLE 0
@@ -207,25 +208,39 @@ void move_right() {
 }
 
 void moveShooter() {
+  unsigned int msVal = 5000;
+  static unsigned long expiredTime = 0; // declare static to keep value
+  register unsigned long r, f, t;
+  asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
+  asm volatile("mrs %0, cntpct_el0" : "=r"(t));
+  expiredTime = t + f * msVal / 1000;
   initializeBalls();
   Player player;
   initPlayer(&player);
   copyBallsToScreen();
+  drawBallsMatrix();
   uart_puts("\nPress A to move shooter to left: ");
   uart_puts("\nPress D to move shooter to right: ");
   drawShooter(BASE_X, BASE_Y, shooter_angle); // Draw initial shooter
   while (1) {
-    char input = uart_getc();
-    if (input == 'a') {
-      move_left();
+    asm volatile("mrs %0, cntpct_el0" : "=r"(t));
+    if (t < expiredTime) {
+      char input = uart_getc_game();
+      if (input == 'a') {
+        move_left();
+        drawBallsMatrix();
+      } else if (input == 'd') {
+        move_right();
+        drawBallsMatrix();
+      } else if (input == 'q') {
+        uart_puts("\n");
+        break;
+      }
+      updatePlayerScoreDisplay(&player);
+    } else {
       copyBallsToScreen();
-    } else if (input == 'd') {
-      move_right();
-      copyBallsToScreen();
-    } else if (input == 'q') {
-      uart_puts("\n");
-      break;
+      drawBallsMatrix();
+      expiredTime = t + f * msVal / 1000;
     }
-    updatePlayerScoreDisplay(&player);
   }
 }
