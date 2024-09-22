@@ -12,6 +12,6 @@
 
 void playGame() {
   drawImage(0, 0, myBackground, 700, 800);
-  // moveShooter();
-  ballExplosion();
+  moveShooter();
+  // ballExplosion();
 }
