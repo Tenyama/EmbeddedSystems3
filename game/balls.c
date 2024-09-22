@@ -2,7 +2,7 @@
 #include "../kernel/framebf.h"
 #include "../uart/uart1.h"
 typedef unsigned char uint8_t;
-#define ROWS 8
+#define ROWS 16
 #define COLS 8
 
 // Directions: left, right, up, down, diagonals
@@ -64,8 +64,6 @@ struct Ball viewableBalls[ROWS][COLS] = {{{0}}}; //= balls[1][COLS] interrupt ->
                                                  // viewableBalls[1][COLS] =
 int rowsOnScreen = 0;
 
-// Function to initialize balls with random colors and positions, given the row
-// number
 void initializeBalls() {
   int startX = 256; // Start drawing from the 157th pixel (adjust as necessary)
   int spacing = 59; // Set spacing equal to ball diameter (59 pixels)
@@ -88,23 +86,42 @@ void initializeBalls() {
 void drawRowOfBalls(int row) {
   for (int i = 0; i < COLS; i++) {
     drawBall(viewableBalls[row][i]);
-    // Draw each ball at the position specified
-    // in initializeBalls()
+  }
+}
+
+struct Ball resetBall() {
+  struct Ball newBall = {0, 0, 0, 0};
+  // Set all fields to zero (or other default values)
+  return newBall;
+}
+void shiftBallsUp(struct Ball matrix[ROWS][COLS]) {
+  int startY = 0;
+  for (int i = ROWS - 1; i > 0; i--) {
+    startY = i * 59 + 29;
+    for (int j = 0; j < COLS; j++) {
+      matrix[i][j] = matrix[i - 1][j];
+      matrix[i][j].centerY = startY; // Set vertical position based on the
+                                     // row
+    }
+  }
+  for (int j = 0; j < COLS; j++) {
+    viewableBalls[0][j] = resetBall(); // Set last row to 0 (or any reset value)
   }
 }
 
 void copyBallsToScreen() {
+  shiftBallsUp(viewableBalls);
   for (int i = 0; i < COLS; i++) {
-    viewableBalls[rowsOnScreen][i] = balls[rowsOnScreen][i];
+    viewableBalls[0][i] = balls[rowsOnScreen][i];
+    viewableBalls[0][i].centerY = 29;
   }
-
-  drawRowOfBalls(rowsOnScreen);
+  rowsOnScreen++;
 }
 
 void drawBallsMatrix() {
-  for (int i = 0; i < ROWS; i++) {
+  for (int i = 0; i < rowsOnScreen; i++) {
     for (int j = 0; j < COLS; j++) {
-      drawBall(balls[i][j]);
+      drawBall(viewableBalls[i][j]);
     }
   }
 }

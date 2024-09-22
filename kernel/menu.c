@@ -8,7 +8,7 @@
 #define MAX_CMD_SIZE 100
 #define BACKSPACE 8
 #define DELETE 127
-#define CLEAR_COLOR 0x00000000  // Black color in ARGB format
+#define CLEAR_COLOR 0x00000000 // Black color in ARGB format
 
 int stopbits = 1;
 
@@ -88,7 +88,8 @@ void handle_help_command(char command[]) {
               "                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "-------------------+\n");
-    uart_puts("|           | exit                 | Exit the program                              |\n");
+    uart_puts("|           | exit                 | Exit the program           "
+              "                   |\n");
     uart_puts("|           |                      | Example: MyOS> clear       "
               "                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
@@ -101,7 +102,8 @@ void handle_help_command(char command[]) {
               "                                    |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
-    uart_puts("|           | baudrate             | The baudrate can be set to any values                          |\n");
+    uart_puts("|           | baudrate             | The baudrate can be set to "
+              "any values                          |\n");
     uart_puts("|           |                      | Example: MyOS> baudrate "
               "                                       |\n");
     uart_puts("+-----------+----------------------+----------------------------"
@@ -113,9 +115,11 @@ void handle_help_command(char command[]) {
               "                                    |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
-    uart_puts("|           | checkbaudrate        | To check the baudrate values                                   |\n");
-    uart_puts("|           |                      | Example: MyOS> checkbaudrate "
-              "9600                              |\n");
+    uart_puts("|           | checkbaudrate        | To check the baudrate "
+              "values                                   |\n");
+    uart_puts(
+        "|           |                      | Example: MyOS> checkbaudrate "
+        "9600                              |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
   } else if (string_compare(command, "stopbits")) {
@@ -125,9 +129,8 @@ void handle_help_command(char command[]) {
               "                                    |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------------+\n");
-    uart_puts(
-        "|           | stopbits             | The stopbits can be set to "
-        "the values such as: 1, 2            |\n");
+    uart_puts("|           | stopbits             | The stopbits can be set to "
+              "the values such as: 1, 2            |\n");
     uart_puts(
         "|           |                      | Example: MyOS> stopbits 1   "
         "                                   |\n");
@@ -141,25 +144,26 @@ void handle_help_command(char command[]) {
               "  |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "--+\n");
-    uart_puts(
-        "|           | checkstopbits        | To check the stopbits  "
-        "      |\n");
+    uart_puts("|           | checkstopbits        | To check the stopbits  "
+              "      |\n");
     uart_puts(
         "|           |                      | Example: MyOS> checkstopbits"
         " |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "--+\n");
     // Set stopbit logic here
-  }else if (string_compare(command, "display image")) {
+  } else if (string_compare(command, "display image")) {
     uart_puts("\n+-----------+----------------------+--------------------------"
               "--------------------+\n");
     uart_puts("| Command # | Command Name         | Usage                      "
               "                  |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------+\n");
-    uart_puts("|           | display image        | Display team image                           |\n");
-    uart_puts("|           |                      | Example: MyOS> display image"
-              "                 |\n");
+    uart_puts("|           | display image        | Display team image         "
+              "                  |\n");
+    uart_puts(
+        "|           |                      | Example: MyOS> display image"
+        "                 |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------+\n");
     // Call a function to display the image here
@@ -170,15 +174,14 @@ void handle_help_command(char command[]) {
               "                              |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------+\n");
-    uart_puts(
-        "|           | game                 | To start playing Dynomite                                |\n");
-    uart_puts(
-        "|           |                      | Example: MyOS> game   "
-        "                                   |\n");
+    uart_puts("|           | game                 | To start playing Dynomite  "
+              "                              |\n");
+    uart_puts("|           |                      | Example: MyOS> game   "
+              "                                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------+\n");
     // Set stopbit logic here
-  }else {
+  } else {
     uart_puts("Unknown command: ");
     uart_puts(command);
     uart_puts("\n");
@@ -313,48 +316,47 @@ void handle_stopbits_command_uart1(char *command) {
 
 // Function to clear the entire screen
 void clearScreen() {
-    framebf_init();
-    // Get the current screen resolution
-    unsigned int width = mBuf[5];  // Screen width
-    unsigned int height = mBuf[6];  // Screen height
+  // Get the current screen resolution
+  unsigned int width = mBuf[5];  // Screen width
+  unsigned int height = mBuf[6]; // Screen height
 
-    // Iterate over every pixel on the screen and set it to CLEAR_COLOR
-    for (unsigned int y = 0; y < height; y++) {
-        for (unsigned int x = 0; x < width; x++) {
-            drawPixelARGB32(x, y, CLEAR_COLOR);
-        }
+  // Iterate over every pixel on the screen and set it to CLEAR_COLOR
+  for (unsigned int y = 0; y < height; y++) {
+    for (unsigned int x = 0; x < width; x++) {
+      drawPixelARGB32(x, y, CLEAR_COLOR);
     }
+  }
 }
 void draw_command_table() {
-    uart_puts("                    ==================================== \n");
-    uart_puts("                    ||          COMMAND MENU          || \n");
-    uart_puts("                    ==================================== \n");
-    uart_puts("\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | Command # |     Command Name     |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 1         | help                 |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 2         | clear                |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 3         | showinfo             |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 4         | baudrate             |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 5         | checkbaudrate        |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 6         | stopbits             |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 7         | checkstopbits        |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 8         | display image        |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 9         | display video        |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 10        | game                 |\n");
-    uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 11        | exit                 |\n");
-    uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    ==================================== \n");
+  uart_puts("                    ||          COMMAND MENU          || \n");
+  uart_puts("                    ==================================== \n");
+  uart_puts("\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | Command # |     Command Name     |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 1         | help                 |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 2         | clear                |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 3         | showinfo             |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 4         | baudrate             |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 5         | checkbaudrate        |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 6         | stopbits             |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 7         | checkstopbits        |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 8         | display image        |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 9         | display video        |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 10        | game                 |\n");
+  uart_puts("                    +-----------+----------------------+\n");
+  uart_puts("                    | 11        | exit                 |\n");
+  uart_puts("                    +-----------+----------------------+\n");
 }
 
 void print_logo() {
@@ -445,8 +447,8 @@ void print_logo() {
   uart_puts("           "
             "+---------------------------+----------------------------+\n");
 
-  uart_puts(
-      "           |         s3986878          |      PHUNG THI MINH ANH    |\n");
+  uart_puts("           |         s3986878          |      PHUNG THI MINH ANH  "
+            "  |\n");
   uart_puts("           |                           |                          "
             "  |\n");
   uart_puts("           "
@@ -462,7 +464,7 @@ void print_logo() {
   uart_puts("           |         s3977955          |        LE THIEN SON      "
             "  |\n");
   uart_puts("           |                           |                          "
-  "  |\n");
+            "  |\n");
   uart_puts(
       "           "
       "+---------------------------+----------------------------+\n\n\n\n");

@@ -23,7 +23,6 @@ void initPlayer(Player *player) {
 // Function to update the player's score display
 void updatePlayerScoreDisplay(Player *player) {
   // Initialize the frame buffer (if not already done)
-  framebf_init();
 
   int height = mBuf[6]; // Get the actual height of the screen
 
@@ -69,7 +68,6 @@ void decreaseScore(Player *player, int amount) {
 // Function to display the scoreboard region on the left-hand side
 void displayScoreRegion() {
   // Initialize the frame buffer
-  framebf_init();
 
   int height = mBuf[6]; // Get the actual height of the screen
 
