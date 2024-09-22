@@ -71,17 +71,6 @@ void calculateShooterEndpoint(int base_x, int base_y, int shooter_angle,
 }
 
 // Example function to retrieve the color of the background image pixel
-unsigned int getBackgroundPixelColor(int x, int y) {
-  // Return the color of the pixel at (x, y) from the background image
-  return myBackground[y * 700 + x]; // Assuming background is a 1D array
-}
-
-// Function to draw a pixel from the background image at a specific position
-void drawBackgroundPixel(int x, int y) {
-  unsigned int color =
-      getBackgroundPixelColor(x, y); // Fetch pixel from background
-  drawPixelARGB32(x, y, color); // Draw that pixel at the specified location
-}
 
 // Function to erase the shooter by restoring the part of the background it
 // covered
@@ -166,7 +155,6 @@ int bounceShooter() {
 
 // Function to move the shooter to the left
 void move_left() {
-
   if (shooter_angle + ANGLE_STEP <= MAX_ANGLE) {
     // Erase the previous shooter
     eraseShooter(BASE_X, BASE_Y, shooter_angle);
@@ -207,6 +195,29 @@ void move_right() {
   }
 }
 
+void shootBall(struct Ball ball, int startx, int starty, int angle) {
+  while (ball.centerY > rowsOnScreen * 59 + 29) {
+    // int sine_val = get_sine(angle);
+    // int cosine_val = get_cosine(angle);
+    // // Calculating x and y based on shooter angle and length
+    // int x = startx * 1000 + (cosine_val * ball.centerX);
+    // int y = starty * 1000 - (sine_val * ball.centerY);
+    // int rounded_x = (x + 500) / 1000;
+    // int rounded_y = (y + 500) / 1000;
+    // uart_puts("\n");
+    // uart_dec(rounded_x);
+    // uart_puts("  ");
+    // uart_dec(rounded_y);
+    // uart_puts("\n");
+    //
+    // Checking if the rounded coordinates are within screen boundaries
+    eraseBall(ball);
+    ball.centerY -= 20;
+    drawBall(ball);
+    wait_msec(50);
+  }
+}
+
 void moveShooter() {
   unsigned int msVal = 5000;
   static unsigned long expiredTime = 0; // declare static to keep value
@@ -214,14 +225,20 @@ void moveShooter() {
   asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
   asm volatile("mrs %0, cntpct_el0" : "=r"(t));
   expiredTime = t + f * msVal / 1000;
+
   initializeBalls();
-  Player player;
-  initPlayer(&player);
   copyBallsToScreen();
   drawBallsMatrix();
+
+  struct Ball shooterBall = {BASE_X, BASE_Y, 29, generateRandomColor()};
+  drawBall(shooterBall);
+  Player player;
+  initPlayer(&player);
+
   uart_puts("\nPress A to move shooter to left: ");
   uart_puts("\nPress D to move shooter to right: ");
   drawShooter(BASE_X, BASE_Y, shooter_angle); // Draw initial shooter
+
   while (1) {
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     if (t < expiredTime) {
@@ -232,6 +249,8 @@ void moveShooter() {
       } else if (input == 'd') {
         move_right();
         drawBallsMatrix();
+      } else if (input == ' ') {
+        shootBall(shooterBall, BASE_X, BASE_Y, shooter_angle);
       } else if (input == 'q') {
         uart_puts("\n");
         break;

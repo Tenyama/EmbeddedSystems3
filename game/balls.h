@@ -3,6 +3,7 @@
 
 typedef unsigned char uint8_t;
 
+extern int rowsOnScreen;
 // Ball structure to hold ball attributes
 struct Ball {
   int centerX;        // X coordinate of the circle center
@@ -12,8 +13,10 @@ struct Ball {
 };
 
 // Function declarations
+unsigned int generateRandomColor();
 void drawCircle(int centerX, int centerY, int radius, unsigned int color);
 void drawBall(struct Ball ball);
+void eraseBall(struct Ball ball);
 void initializeBalls();
 void drawRowOfBalls(int row);
 void drawBallsMatrix();

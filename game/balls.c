@@ -56,12 +56,13 @@ void drawCircle(int centerX, int centerY, int radius, unsigned int color) {
 void drawBall(struct Ball ball) {
   drawCircle(ball.centerX, ball.centerY, ball.radius, ball.color);
 }
+void eraseBall(struct Ball ball) {
+  eraseLCircle(ball.centerX, ball.centerY, ball.radius);
+}
 
 // Array to hold multiple balls
 struct Ball balls[ROWS][COLS];
-
-struct Ball viewableBalls[ROWS][COLS] = {{{0}}}; //= balls[1][COLS] interrupt ->
-                                                 // viewableBalls[1][COLS] =
+struct Ball viewableBalls[ROWS][COLS] = {{{0}}};
 int rowsOnScreen = 0;
 
 void initializeBalls() {
