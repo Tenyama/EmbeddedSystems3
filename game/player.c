@@ -5,8 +5,7 @@
 
 #define SCORE_REGION_WIDTH 228
 #define SCOREBOARD_BORDER_COLOR 0xFFEA7F7D // Border color for the scoreboard
-#define SCOREBOARD_BACKGROUND_COLOR                                            \
-  0xFF999999 // Background color for the scoreboard
+#define SCOREBOARD_BACKGROUND_COLOR 0xFF999999 // Background color for the scoreboard
 #define LEVEL_UP_SCORE 100                 // Score required to level up
 
 // Define the Player structure

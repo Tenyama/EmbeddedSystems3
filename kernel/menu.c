@@ -8,6 +8,8 @@
 #define MAX_CMD_SIZE 100
 #define BACKSPACE 8
 #define DELETE 127
+#define MAX_BAUD_VAL 1000000
+#define MIN_BAUD_VAL 100
 #define CLEAR_COLOR 0x00000000  // Black color in ARGB format
 
 int stopbits = 1;
@@ -103,7 +105,7 @@ void handle_help_command(char command[]) {
     uart_puts("+-----------+----------------------+----------------------------"
               "-------------------+\n");
     uart_puts("|           | exit                 | Exit the program                              |\n");
-    uart_puts("|           |                      | Example: MyOS> clear       "
+    uart_puts("|           |                      | Example: MyOS> exit        "
               "                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "-------------------+\n");
@@ -296,18 +298,35 @@ void int_to_str(int value, char *str) {
   }
 }
 
-void handle_baudrate_command_uart1(char *command) {
-  char *baudrate_value = command + 9; // Skip "baudrate "
-  while (*baudrate_value == ' ')
-    baudrate_value++;                       // Trim spaces
-  baudrate = string_to_int(baudrate_value); // Convert string to int
+// void handle_baudrate_command_uart1(char *command) {
+//   char *baudrate_value = command + 9; // Skip "baudrate "
+//   while (*baudrate_value == ' ')
+//     baudrate_value++;                       // Trim spaces
+//   baudrate = string_to_int(baudrate_value); // Convert string to int
 
-  if (baudrate == 115200 || baudrate == 9600) {
-    set_baudrate_uart1(baudrate);
-  } else {
-    uart_puts("Invalid baudrate. Use 'baudrate 9600' or 'baudrate 115200'.\n");
-  }
+//   if (baudrate == 115200 || baudrate == 9600) {
+//     set_baudrate_uart1(baudrate);
+//   } else {
+//     uart_puts("Invalid baudrate. Use 'baudrate 9600' or 'baudrate 115200'.\n");
+//   }
+// }
+void handle_baudrate_command_uart1(char *command) {
+    char *baudrate_value = command + 9; // Skip "baudrate " part
+    while (*baudrate_value == ' ') {
+        baudrate_value++;  // Trim leading spaces
+    }
+    
+    int baudrate = string_to_int(baudrate_value); // Convert the string to integer
+    
+    // Check if the baudrate is within a reasonable range (e.g., 300 to 115200)
+    if (baudrate >= MIN_BAUD_VAL && baudrate <= MAX_BAUD_VAL) {
+        set_baudrate_uart1(baudrate);  // Set the UART baudrate
+        uart_puts("Baudrate set successfully.\n");
+    } else {
+        uart_puts("Invalid baudrate. Please use a value between 300 and 115200.\n");
+    }
 }
+
 
 /**
  * Handle stopbits command (e.g., "stopbits 1" or "stopbits 2")
