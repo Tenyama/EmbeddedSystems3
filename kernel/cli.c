@@ -9,7 +9,7 @@
 #define HISTORY_SIZE 10
 #define BACKSPACE 8
 #define DELETE 127
-#define COMMAND_SIZE 11
+#define COMMAND_SIZE 12
 
 // Command list
 static char *command_list[] = {

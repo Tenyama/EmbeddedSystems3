@@ -74,10 +74,24 @@ void handle_help_command(char command[]) {
               "                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "-------------------+\n");
-    uart_puts("|           | clear                | Clear QEMU screen          "
+    uart_puts("|           | clear                | Clear terminal screen      "
               "                   |\n");
     uart_puts("|           |                      | Example: MyOS> clear       "
               "                   |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "-------------------+\n");
+    // You may want to implement a screen clearing function here.
+  } else if (string_compare(command, "clear QEMU")) {
+    uart_puts("\n+-----------+----------------------+--------------------------"
+              "---------------------+\n");
+    uart_puts("| Command # | Command Name         | Usage                      "
+              "                   |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "-------------------+\n");
+    uart_puts("|           | clear QEMU           | Clear QEMU screen          "
+              "                   |\n");
+    uart_puts("|           |                      | Example: MyOS> clear QEMU      "
+              "               |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "-------------------+\n");
     // You may want to implement a screen clearing function here.
@@ -177,6 +191,7 @@ void handle_help_command(char command[]) {
         "                                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------+\n");
+              
     // Set stopbit logic here
   }else {
     uart_puts("Unknown command: ");
@@ -337,7 +352,7 @@ void draw_command_table() {
     uart_puts("                    +-----------+----------------------+\n");
     uart_puts("                    | 2         | clear                |\n");
     uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 3         | showinfo             |\n");
+    uart_puts("                    | 3         | clear QEMU           |\n");
     uart_puts("                    +-----------+----------------------+\n");
     uart_puts("                    | 4         | baudrate             |\n");
     uart_puts("                    +-----------+----------------------+\n");
@@ -353,8 +368,12 @@ void draw_command_table() {
     uart_puts("                    +-----------+----------------------+\n");
     uart_puts("                    | 10        | game                 |\n");
     uart_puts("                    +-----------+----------------------+\n");
-    uart_puts("                    | 11        | exit                 |\n");
+    uart_puts("                    | 11        | showinfo             |\n");
     uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("                    | 12        | game                 |\n");
+    uart_puts("                    +-----------+----------------------+\n");
+    uart_puts("\nFor commands' detailed information, please follow the format below: "
+              "\n => help <command_name>\n\n");
 }
 
 void print_logo() {
