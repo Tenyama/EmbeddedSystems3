@@ -5,11 +5,12 @@
 #include "./background.h"
 #include "./balls.h"
 #include "./displayGameFrame.h"
+#include "./interrupt.h"
 #include "./player.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
-#define ANGLE_STEP 15
+#define ANGLE_STEP 5
 #define SCREEN_WIDTH 700
 #define SCREEN_HEIGHT 800
 
@@ -18,27 +19,34 @@
 #define BASE_Y SCREEN_HEIGHT
 
 // Length of the shooter (the line)
-#define SHOOTER_LENGTH 500
+#define SHOOTER_LENGTH 700
 
 // Initialize the shooter's current angle
 int shooter_angle = 90; // Start at 90 degrees (straight up)
 
-// Lookup tables for sine and cosine values (multiplied by 1000 to avoid float)
-const int sine_table[19] = {0,   174, 342, 500, 643, 766, 866, 940, 985, 1000,
-                            985, 940, 866, 766, 643, 500, 342, 174, 0};
-const int cosine_table[19] = {1000, 985,  940,  866,  766,  643,  500,
-                              342,  174,  0,    -174, -342, -500, -643,
-                              -766, -866, -940, -985, -1000};
+const int sine_table[37] = {
+    0,    87,   173,  258,  342,  422,  500,  573,  642,  707, 
+    766,  819,  866,  906,  939,  965,  984,  996,  1000, 
+    996,  984,  965,  939,  906,  866,  819,  766,  707,  642,
+    573,  500,  422,  342,  258,  173,  87,   0
+};
+
+const int cosine_table[37] = {
+    1000, 996,  984,  965,  939,  906,  866,  819,  766,  707,
+    642,  573,  500,  422,  342,  258,  173,  87,   0, 
+    -87,  -173, -258, -342, -422, -500, -573, -642, -707, -766,
+    -819, -866, -906, -939, -965, -984, -996, -1000
+};
 
 // Function to get sine value from the lookup table based on the angle
 int get_sine(int angle) {
-  return sine_table[angle / 10]; // Divide by 10 to get the index for the table
+  return sine_table[angle / 5]; // Divide by 10 to get the index for the table
 }
 
 // Function to get cosine value from the lookup table based on the angle
 int get_cosine(int angle) {
   return cosine_table[angle /
-                      10]; // Divide by 10 to get the index for the table
+                      5]; // Divide by 10 to get the index for the table
 }
 
 // Function to calculate the endpoint of the shooter based on the angle
@@ -142,6 +150,7 @@ void drawShooter(int base_x, int base_y, int shooter_angle) {
 
 int end_x, end_y;
 int reflected_angle;
+
 // Function to bounce the shooter off the borders
 int bounceShooter() {
   eraseShooter(end_x, end_y, reflected_angle);
@@ -163,6 +172,31 @@ int bounceShooter() {
   return 0;
 }
 
+// int secondEndX;
+// int secondEndY;
+// int secondReflectedAngle;
+// // Function to bounce the shooter off the borders
+// int secondBounceShooter() {
+//   eraseShooter(end_x, end_y, reflected_angle);
+//   calculateShooterEndpoint(end_x, end_y, reflected_angle, &secondEndX, &secondEndY);
+//   uart_dec(secondEndX);
+//   uart_puts("  ");
+//   uart_dec(secondEndY);
+
+//   // Check for border collisions
+//   if (secondEndX <= 228 || secondEndX >= 700) {
+//     // Shooter hits left or right border, bounce it by mirroring the angle
+//     secondReflectedAngle = 180 - reflected_angle;
+//     uart_puts("Shooter second bounced off the border!\n");
+//     drawShooter(end_x, end_y, reflected_angle);
+//     drawShooter(secondEndX, secondEndY, secondReflectedAngle);
+//     // eraseShooter(end_x, end_y, shooter_angle);
+//     return 1;
+//   }
+//   return 0;
+// }
+
+
 // Function to move the shooter to the left
 void move_left() {
 
@@ -179,10 +213,17 @@ void move_left() {
     if (!bounceShooter()) {
       // Draw the updated shooter
       drawShooter(BASE_X, BASE_Y, shooter_angle);
-    }
+    } /*else {
+      // Handle the second bounce
+      if (!secondBounceShooter()) {
+        // No second bounce, draw the updated shooter after first bounce
+        drawShooter(end_x, end_y, reflected_angle);
+      }
+    }*/
   } else {
     shooter_angle = MAX_ANGLE; // Prevent going above maximum
   }
+
 }
 
 // Function to move the shooter to the right
@@ -200,32 +241,53 @@ void move_right() {
     if (!bounceShooter()) {
       // Draw the updated shooter
       drawShooter(BASE_X, BASE_Y, shooter_angle);
-    }
+    }/*else {
+      // Handle the second bounce
+      if (!secondBounceShooter()) {
+        // No second bounce, draw the updated shooter after first bounce
+        drawShooter(end_x, end_y, reflected_angle);
+      }
+    }*/
+
   } else {
     shooter_angle = MIN_ANGLE; // Prevent going below minimum
   }
 }
 
 void moveShooter() {
+  unsigned int msVal = 5000;
+  static unsigned long expiredTime = 0; // declare static to keep value
+  register unsigned long r, f, t;
+  asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
+  asm volatile("mrs %0, cntpct_el0" : "=r"(t));
+  expiredTime = t + f * msVal / 1000;
   initializeBalls();
   Player player;
   initPlayer(&player);
   copyBallsToScreen();
+  drawBallsMatrix();
   uart_puts("\nPress A to move shooter to left: ");
   uart_puts("\nPress D to move shooter to right: ");
   drawShooter(BASE_X, BASE_Y, shooter_angle); // Draw initial shooter
   while (1) {
-    char input = uart_getc();
-    if (input == 'a') {
-      move_left();
+    asm volatile("mrs %0, cntpct_el0" : "=r"(t));
+    if (t < expiredTime) {
+      char input = uart_getc_game();
+      if (input == 'a') {
+        move_left();
+        drawBallsMatrix();
+      } else if (input == 'd') {
+        move_right();
+        drawBallsMatrix();
+      } else if (input == 'q') {
+        uart_puts("\n");
+        break;
+      }
+      updatePlayerScoreDisplay(&player);
+    } else {
       copyBallsToScreen();
-    } else if (input == 'd') {
-      move_right();
-      copyBallsToScreen();
-    } else if (input == 'q') {
-      uart_puts("\n");
-      break;
+      drawBallsMatrix();
+      expiredTime = t + f * msVal / 1000;
     }
-    updatePlayerScoreDisplay(&player);
   }
 }

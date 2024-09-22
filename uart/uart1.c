@@ -85,6 +85,26 @@ char uart_getc() {
   return (c == '\r' ? '\n' : c);
 }
 
+char uart_getc_game() {
+  char c;
+  /* wait until data is ready (one symbol) */
+  int i = 0;
+  int total_time = 1000000;
+  do {
+    asm volatile("nop");
+    i++;
+    if (i == total_time) {
+      return '\0';
+    }
+  } while (!(AUX_MU_LSR & 0x01)); // - bit 1 FIFO hold at least 1 symbol
+  /* read it and return */
+  c = (char)(AUX_MU_IO); // - read from FIFO as char
+  /* convert carriage return to newline */
+  return (c == '\r'
+              ? '\n'
+              : c); // - check for carriage return if yes change it to Enter
+}
+
 /**
  * Display a string
  */

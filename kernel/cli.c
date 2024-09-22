@@ -3,8 +3,9 @@
 #include "../game/game.h"
 #include "../uart/uart1.h"
 #include "./draw.h"
-#include "./menu.h"
 #include "./framebf.h"
+#include "./menu.h"
+#include "./video.h"
 #define MAX_CMD_SIZE 100
 #define HISTORY_SIZE 10
 #define BACKSPACE 8

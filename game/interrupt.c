@@ -1,5 +1,7 @@
 /* Functions to delay, set/wait timer */
 
+int globalTimerInterrupt;
+
 void wait_msec(unsigned int msVal) {
   register unsigned long f, t, r, expiredTime; // 64 bits
 
@@ -35,7 +37,9 @@ void set_wait_timer(int set, unsigned int msVal) {
   } else { /* WAIT FOR TIMER TO EXPIRE */
     do {
       asm volatile("mrs %0, cntpct_el0" : "=r"(r));
+      globalTimerInterrupt = 0;
     } while (r < expiredTime);
+    globalTimerInterrupt = 1;
   }
 }
 

@@ -1,5 +1,8 @@
-.null-ls_930918_videoFrame.c
 Makefile
+videoFrame.c
+videoFrame.h
+build/
+kernel8.img
 # Ignore object files and compiled binaries
 *.o
 *.out
