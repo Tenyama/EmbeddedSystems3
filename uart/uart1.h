@@ -18,6 +18,7 @@ extern volatile unsigned int baudrate;
 void uart_init();
 void uart_sendc(char c);
 char uart_getc();
+char uart_getc_game();
 void uart_puts(char *s);
 void uart_hex(unsigned int num);
 void uart_dec(int num);
