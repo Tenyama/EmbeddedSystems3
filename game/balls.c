@@ -5,8 +5,6 @@
 #include "./interrupt.h"
 
 typedef unsigned char uint8_t;
-#define ROWS 16
-#define COLS 8
 
 // Directions: left, right, up, down, diagonals
 int dx[] = {-1, 1, 0, 0};
@@ -54,7 +52,6 @@ void eraseBall(struct Ball ball) {
   eraseLCircle(ball.centerX, ball.centerY, ball.radius);
 }
 
-// Array to hold multiple balls
 struct Ball balls[ROWS][COLS];
 struct Ball viewableBalls[ROWS][COLS] = {{{0}}};
 int rowsOnScreen = 0;
@@ -120,10 +117,27 @@ void drawBallsMatrix() {
     }
   }
 }
+
+int getMaxRow(int currentX) {
+  // Determine the column based on the ball's X position
+  int column = (currentX - 228) / 59;
+  if (column > 7) {
+    column = 7;
+  } else if (column < 0) {
+    column = 0;
+  }
+  for (int row = ROWS - 1; row > 0; row--) {
+    if (viewableBalls[row][column].centerX != 0)
+      return row + 1;
+  }
+  return 1;
+}
+
 // Declare a visited array globally or pass it to the function
 int visited[ROWS][COLS];
 
 // Initialize the visited array before starting the depth-first search
+
 void resetVisited() {
   for (int i = 0; i < ROWS; i++) {
     for (int j = 0; j < COLS; j++) {
@@ -138,13 +152,12 @@ int is_valid(int x, int y, int color) {
   return x >= 0 && x < ROWS && y >= 0 && y < COLS &&
          viewableBalls[x][y].color == color && !visited[x][y];
 }
-
 int depthFirstSearch(int x, int y, int color) {
   // If the ball is not valid (out of bounds or already visited), return
   if (!is_valid(x, y, color)) {
+
     return 0;
   }
-
   // Log for debugging
   uart_puts("Checking position: ");
   uart_dec(x);
@@ -153,17 +166,14 @@ int depthFirstSearch(int x, int y, int color) {
   uart_puts("\n");
   // Mark this ball as visited in the auxiliary array
   visited[x][y] = 1;
-
   int count = 1;
   for (int i = 0; i < 4; i++) {
     int new_x = x + dx[i];
     int new_y = y + dy[i];
     count += depthFirstSearch(new_x, new_y, color);
   }
-
   return count;
 }
-
 // Function to check if the placed ball can explode
 int check_explosion(int x, int y) {
   unsigned int color = viewableBalls[x][y].color;
@@ -191,7 +201,6 @@ void clearConnectedBalls(int row, int col, int color) {
   viewableBalls[row][col] = resetBall();
   drawExplode(viewableBalls[row][col].centerX, viewableBalls[row][col].centerY);
   wait_msec(50);
-
   // Recursively clear adjacent balls of the same color
   for (int i = 0; i < 4; i++) {
     int new_row = row + dx[i];
@@ -210,13 +219,11 @@ void handleExplosion(int row, int col) {
     // Animate explosion at the coordinates of the center ball
     drawExplode(viewableBalls[row][col].centerX,
                 viewableBalls[row][col].centerY);
-    wait_msec(50);
+    wait_msec(100);
     clearExplosion(viewableBalls[row][col].centerX,
                    viewableBalls[row][col].centerY);
-
     // Clear the balls involved in the explosion by setting their color to 0
     clearConnectedBalls(row, col, color); // Pass the stored color
-
     // Redraw the screen to reflect the cleared balls
     drawBallsMatrix();
   }
@@ -235,9 +242,11 @@ void registerBall(int end_x, struct Ball ball) {
   // the column
   int row = ROWS - 1; // Start from the last row
   while (row >= 0 && viewableBalls[row][column].centerX == 0) {
-    row--; // Move up to the next available row if the current one is occupied
+    row--; // Move up to the next available row if the current one is
+    // occupied
   }
   row++;
+  // int row = (ball.centerY / 59);
 
   // If we found a valid row, register the ball there
   if (row >= 0) {
