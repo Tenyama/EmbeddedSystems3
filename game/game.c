@@ -6,9 +6,12 @@
 #include "./player.h"
 #include "shooter.h"
 
+
+#include "ballExplode.h"
+
+
 void playGame() {
   drawImage(0, 0, myBackground, 700, 800);
-  displayScoreRegion();
   moveShooter();
   // ballExplosion();
 }

@@ -28,7 +28,7 @@ void set_wait_timer(int set, unsigned int msVal) {
   if (set) { /* SET TIMER */
     // Get the current counter frequency (Hz)
     asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
-    
+
     // Read the current counter
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
 
@@ -42,9 +42,3 @@ void set_wait_timer(int set, unsigned int msVal) {
     globalTimerInterrupt = 1;
   }
 }
-
-/*
-set_wait_timer(1, 500);
-//LAM GI DO
-set_wait_timer(0, 0);
-*/
