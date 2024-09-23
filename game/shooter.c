@@ -4,15 +4,16 @@
 #include "../uart/uart1.h"
 #include "./background.h"
 #include "./balls.h"
-#include "./displayGameFrame.h"
 #include "./interrupt.h"
 #include "./player.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
-#define ANGLE_STEP 5
+#define ANGLE_STEP 2
 #define SCREEN_WIDTH 700
 #define SCREEN_HEIGHT 800
+#define PI 3.14159265358979323846
+
 
 // Shooter's base point (assumed at the center bottom of the screen)
 #define BASE_X ((SCREEN_WIDTH + 228) / 2)
@@ -24,30 +25,55 @@
 // Initialize the shooter's current angle
 int shooter_angle = 90; // Start at 90 degrees (straight up)
 
-const int sine_table[37] = {
-    0,    87,   173,  258,  342,  422,  500,  573,  642,  707, 
-    766,  819,  866,  906,  939,  965,  984,  996,  1000, 
-    996,  984,  965,  939,  906,  866,  819,  766,  707,  642,
-    573,  500,  422,  342,  258,  173,  87,   0
-};
-
-const int cosine_table[37] = {
-    1000, 996,  984,  965,  939,  906,  866,  819,  766,  707,
-    642,  573,  500,  422,  342,  258,  173,  87,   0, 
-    -87,  -173, -258, -342, -422, -500, -573, -642, -707, -766,
-    -819, -866, -906, -939, -965, -984, -996, -1000
-};
-
-// Function to get sine value from the lookup table based on the angle
-int get_sine(int angle) {
-  return sine_table[angle / 5]; // Divide by 10 to get the index for the table
+// Helper function to convert degrees to radians
+double degreesToRadians(double degrees) {
+    return degrees * PI / 180.0;
 }
 
-// Function to get cosine value from the lookup table based on the angle
-int get_cosine(int angle) {
-  return cosine_table[angle /
-                      5]; // Divide by 10 to get the index for the table
+// Helper function to calculate factorial
+long factorial(int n) {
+    long result = 1;
+    for (int i = 2; i <= n; ++i) {
+        result *= i;
+    }
+    return result;
 }
+
+// Sine function using Taylor Series expansion
+double get_sine(double degrees) {
+    double radians = degreesToRadians(degrees);
+    double sine = 0.0;
+    double term = radians;
+    int sign = 1;
+
+    // Using 5 terms of the Taylor Series
+    for (int i = 1; i <= 9; i += 2) {
+        sine += sign * term;
+        term *= (radians * radians) / ((i + 1) * (i + 2));
+        sign = -sign;  // Alternate sign
+    }
+    
+    return sine*1000;
+}
+
+// Cosine function using Taylor Series expansion
+double get_cosine(double degrees) {
+    double radians = degreesToRadians(degrees);
+    double cosine = 0.0;
+    double term = 1.0;
+    int sign = 1;
+
+    // Using 5 terms of the Taylor Series
+    for (int i = 0; i <= 8; i += 2) {
+        cosine += sign * term;
+        term *= (radians * radians) / ((i + 1) * (i + 2));
+        sign = -sign;  // Alternate sign
+    }
+    
+    return cosine*1000;
+}
+
+
 
 // Function to calculate the endpoint of the shooter based on the angle
 void calculateShooterEndpoint(int base_x, int base_y, int shooter_angle,
@@ -97,7 +123,7 @@ void eraseShooter(int base_x, int base_y, int shooter_angle) {
   int cosine_val = get_cosine(shooter_angle);
 
   for (int i = 0; i < SHOOTER_LENGTH; i++) {
-    for (int j = -4; j <= 4; j++) {
+    for (int j = -2; j <= 2; j++) {
       int x = (base_x * 1000) + (cosine_val * i - sine_val * j);
       int y = (base_y * 1000) - (sine_val * i + cosine_val * j);
 
@@ -123,7 +149,7 @@ void drawShooter(int base_x, int base_y, int shooter_angle) {
   int cosine_val = get_cosine(shooter_angle);
 
   for (int i = 0; i < SHOOTER_LENGTH; i++) {
-    for (int j = -4; j <= 4; j++) {
+    for (int j = -2; j <= 2; j++) {
       // Calculating x and y based on shooter angle and length
       int x = (base_x * 1000) + (cosine_val * i - sine_val * j);
       int y = (base_y * 1000) - (sine_val * i + cosine_val * j);
@@ -285,8 +311,8 @@ void moveShooter() {
       }
       updatePlayerScoreDisplay(&player);
     } else {
-      copyBallsToScreen();
-      drawBallsMatrix();
+      // copyBallsToScreen();
+      // drawBallsMatrix();
       expiredTime = t + f * msVal / 1000;
     }
   }
