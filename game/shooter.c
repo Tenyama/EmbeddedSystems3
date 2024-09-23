@@ -5,8 +5,8 @@
 #include "./background.h"
 #include "./balls.h"
 #include "./interrupt.h"
-#include "./player.h"
 #include "./pause.h"
+#include "./player.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
@@ -247,8 +247,8 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle,
 
   // Keep moving the ball until it hits the screen boundary or bounce point
   while (currentX >= 0 && currentX < SCREEN_WIDTH &&
-         currentY > (rowsOnScreen) * 59 + 29 && currentY < SCREEN_HEIGHT) {
-
+         currentY > (getMaxRow(currentX) + 1) * 59 &&
+         currentY < SCREEN_HEIGHT) {
     // Erase the ball from its current position
     eraseBall(*ball);
 
@@ -281,15 +281,20 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle,
     // Simulate a short delay (to control ball speed)
     wait_msec(50);
   }
+  uart_puts("\ncenterX: ");
+  uart_dec(ball->centerX);
+  uart_puts(" centery: ");
+  uart_dec(ball->centerY);
+  uart_puts("\n");
   eraseBall(*ball);
   registerBall(ball->centerX, *ball);
   uart_puts("Ball reached the boundary and stopped.\n");
 }
 
 // Function to switch the ball's direction when it reaches the bounce point
-void switchBallDirectionAtBounce(struct Ball *ball)
-{
-  // When ball reaches the bounce point, change its direction based on the reflected angle
+void switchBallDirectionAtBounce(struct Ball *ball) {
+  // When ball reaches the bounce point, change its direction based on the
+  // reflected angle
   int sine_val = get_sine(reflected_angle);
   int cosine_val = get_cosine(reflected_angle);
 
@@ -297,12 +302,12 @@ void switchBallDirectionAtBounce(struct Ball *ball)
   ball->centerX += (cosine_val * 4) / 1000.0; // Change 4 to speed if needed
   ball->centerY -= (sine_val * 4) / 1000.0;
 
-  // You can add further conditions or fine-tune movement behavior here if needed
+  // You can add further conditions or fine-tune movement behavior here if
+  // needed
 }
 int isPaused = 0; // 0 = game running, 1 = game paused
 
-void moveShooter()
-{
+void moveShooter() {
   unsigned int msVal = 5000;
   static unsigned long expiredTime = 0; // declare static to keep value
   register unsigned long f, t;
@@ -330,24 +335,21 @@ void moveShooter()
   drawBall(shooterBall);
   int isPaused = 0; // Game is running by default
 
-  while (1)
-  {
+  while (1) {
     char input = uart_getc_game(); // Read input outside of the timing condition
 
     // Check for pause state first
-    if (isPaused)
-    {
+    if (isPaused) {
       if (input == 'c') // Continue game
       {
         uart_puts("\nResuming Game\n");
-        copyBallsToScreen();                        // Redraw the background or game elements
-        drawBallsMatrix();                          // Redraw any active balls
+        copyBallsToScreen(); // Redraw the background or game elements
+        drawBallsMatrix();   // Redraw any active balls
         drawShooter(BASE_X, BASE_Y, shooter_angle); // Redraw shooter
         drawBall(shooterBall);                      // Redraw current ball
         updatePlayerScoreDisplay(&player);          // Redraw the player's score
         isPaused = 0;                               // Unpause the game
-      }
-      else if (input == 'q') // Quit game while paused
+      } else if (input == 'q')                      // Quit game while paused
       {
         uart_puts("\nQuitting Game\n");
         break; // Exit the game loop
@@ -370,38 +372,34 @@ void moveShooter()
         move_left();
         drawBall(shooterBall);
         drawBallsMatrix();
-      }
-      else if (input == 'd') // Move right
+      } else if (input == 'd') // Move right
       {
         move_right();
         drawBall(shooterBall);
         drawBallsMatrix();
-      }
-      else if (input == ' ' && !isPaused) // Shoot ball
+      } else if (input == ' ' && !isPaused) // Shoot ball
       {
-        moveBallAlongShooterLine(&shooterBall, shooter_angle, 10);
+        moveBallAlongShooterLine(&shooterBall, shooter_angle, 40);
         // After shooting the ball, reset it for the next shot
         shooterBall.centerX = BASE_X;
         shooterBall.centerY = 771;
-        shooterBall.color = generateRandomColor(); // Generate a new random color for the next ball
+        shooterBall.color = generateRandomColor(); // Generate a new random
+                                                   // color for the next ball
         ballReady = 0;
         drawBallsMatrix();
-        updatePlayerScoreDisplay(&player); // Only update the score if the game is not paused
-      }
-      else if (input == 'q') // Quit game
+        updatePlayerScoreDisplay(
+            &player); // Only update the score if the game is not paused
+      } else if (input == 'q') // Quit game
       {
         uart_puts("\nQuitting Game\n");
-        break; // Exit the game loop
-      }
-      else if (input == 'p') // Pause game
+        break;                 // Exit the game loop
+      } else if (input == 'p') // Pause game
       {
         uart_puts("\nGame Paused\n");
         drawImage(0, 0, myPause, 700, 800); // Draw the pause image
         isPaused = 1;                       // Set the game to paused
       }
-    }
-    else
-    {
+    } else {
       copyBallsToScreen();
       drawBallsMatrix();
       expiredTime = t + f * msVal / 1000;

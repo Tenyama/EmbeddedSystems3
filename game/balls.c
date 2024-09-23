@@ -117,8 +117,23 @@ void drawBallsMatrix() {
     }
   }
 }
-// Declare a visited array globally or pass it to the function
 
+int getMaxRow(int currentX) {
+  // Determine the column based on the ball's X position
+  int column = (currentX - 228) / 59;
+  if (column > 7) {
+    column = 7;
+  } else if (column < 0) {
+    column = 0;
+  }
+  for (int row = ROWS - 1; row > 0; row--) {
+    if (viewableBalls[row][column].centerX != 0)
+      return row + 1;
+  }
+  return 1;
+}
+
+// Declare a visited array globally or pass it to the function
 int visited[ROWS][COLS];
 
 // Initialize the visited array before starting the depth-first search
@@ -130,7 +145,6 @@ void resetVisited() {
     }
   }
 }
-
 
 int is_valid(int x, int y, int color) {
   // Ensure the position is within bounds and the ball hasn't been visited yet
@@ -231,7 +245,7 @@ void registerBall(int end_x, struct Ball ball) {
     row--; // Move up to the next available row if the current one is
     // occupied
   }
-  // row++;
+  row++;
   // int row = (ball.centerY / 59);
 
   // If we found a valid row, register the ball there

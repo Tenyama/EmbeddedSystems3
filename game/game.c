@@ -1,16 +1,14 @@
 #include "../kernel/draw.h"
 #include "../uart/uart1.h"
-// #include "./background.h"
+#include "./background.h"
 #include "./balls.h"
 #include "./player.h"
-#include "shooter.h"
 #include "gameWelcome.h"
-
+#include "shooter.h"
 
 #include "ballExplode.h"
 
-void playGame()
-{
+void playGame() {
   drawImage(0, 0, myBackground, 700, 800);
   unsigned int msVal = 5000;
   static unsigned long expiredTime = 0; // declare static to keep value
@@ -29,5 +27,5 @@ void playGame()
 
   moveShooter();
 
-  //ballExplosion();
+  // ballExplosion();
 }

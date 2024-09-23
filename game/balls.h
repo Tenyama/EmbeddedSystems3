@@ -18,8 +18,6 @@ struct Ball {
 // Array to hold multiple balls
 extern struct Ball balls[ROWS][COLS];
 
-
-
 // Function declarations
 unsigned int generateRandomColor();
 void drawCircle(int centerX, int centerY, int radius, unsigned int color);
@@ -33,6 +31,7 @@ void drawAllBalls();
 void handleExplosion(int row, int col);
 int check_explosion(int x, int y);
 void registerBall(int end_x, struct Ball ball);
+int getMaxRow(int currentX);
 
 #endif // BALLS_H
 
