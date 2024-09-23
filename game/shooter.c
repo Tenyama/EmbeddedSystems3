@@ -7,6 +7,7 @@
 #include "./displayGameFrame.h"
 #include "./interrupt.h"
 #include "./player.h"
+#include "./pause.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
@@ -347,6 +348,7 @@ void switchBallDirectionAtBounce(struct Ball *ball)
 
   // You can add further conditions or fine-tune movement behavior here if needed
 }
+int isPaused = 0; // 0 = game running, 1 = game paused
 
 void moveShooter()
 {
@@ -371,9 +373,34 @@ void moveShooter()
   uart_puts("\nPress D to move shooter to right: ");
   drawShooter(BASE_X, BASE_Y, shooter_angle); // Draw initial shooter
   drawBall(shooterBall);
+  int isPaused = 0; // Game is running by default
 
   while (1)
   {
+    char input = uart_getc_game(); // Read input outside of the timing condition
+
+    // Check for pause state first
+    if (isPaused)
+    {
+      if (input == 'c') // Continue game
+      {
+        uart_puts("\nResuming Game\n");
+        copyBallsToScreen();                        // Redraw the background or game elements
+        drawBallsMatrix();                          // Redraw any active balls
+        drawShooter(BASE_X, BASE_Y, shooter_angle); // Redraw shooter
+        drawBall(shooterBall);                      // Redraw current ball
+        updatePlayerScoreDisplay(&player);          // Redraw the player's score
+        isPaused = 0;                               // Unpause the game
+      }
+      else if (input == 'q') // Quit game while paused
+      {
+        uart_puts("\nQuitting Game\n");
+        break; // Exit the game loop
+      }
+      continue; // Skip the rest of the loop if paused
+    }
+
+    // Normal game loop when not paused
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     if (t < expiredTime)
     {
@@ -383,38 +410,41 @@ void moveShooter()
         drawBall(shooterBall);
         ballReady = 1;
       }
-      char input = uart_getc_game();
-      if (input == 'a')
+
+      if (input == 'a') // Move left
       {
         move_left();
         drawBall(shooterBall);
         drawBallsMatrix();
       }
-      else if (input == 'd')
+      else if (input == 'd') // Move right
       {
         move_right();
         drawBall(shooterBall);
         drawBallsMatrix();
       }
-      else if (input == ' ')
+      else if (input == ' ' && !isPaused) // Shoot ball
       {
-        // shootBall(shooterBall, BASE_X, 771, shooter_angle);
         moveBallAlongShooterLine(&shooterBall, shooter_angle, 10);
         // After shooting the ball, reset it for the next shot
         shooterBall.centerX = BASE_X;
         shooterBall.centerY = 771;
         shooterBall.color = generateRandomColor(); // Generate a new random color for the next ball
-
-        // drawBall(shooterBall); // Draw the new ball ready for the next shot
         ballReady = 0;
         drawBallsMatrix();
+        updatePlayerScoreDisplay(&player); // Only update the score if the game is not paused
       }
-      else if (input == 'q')
+      else if (input == 'q') // Quit game
       {
-        uart_puts("\n");
-        break;
+        uart_puts("\nQuitting Game\n");
+        break; // Exit the game loop
       }
-      updatePlayerScoreDisplay(&player);
+      else if (input == 'p') // Pause game
+      {
+        uart_puts("\nGame Paused\n");
+        drawImage(0, 0, myPause, 700, 800); // Draw the pause image
+        isPaused = 1;                       // Set the game to paused
+      }
     }
     else
     {
