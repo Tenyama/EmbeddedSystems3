@@ -6,7 +6,8 @@
 #include "./balls.h"
 #include "./interrupt.h"
 #include "./player.h"
-
+#include "gameWelcome.h"
+#include "../kernel/menu.h"
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
 #define ANGLE_STEP 2
@@ -280,6 +281,8 @@ void move_right() {
   }
 }
 
+
+int isPaused = 0;
 void moveShooter() {
   unsigned int msVal = 5000;
   static unsigned long expiredTime = 0; // declare static to keep value
@@ -292,22 +295,67 @@ void moveShooter() {
   initPlayer(&player);
   copyBallsToScreen();
   drawBallsMatrix();
-  uart_puts("\nPress A to move shooter to left: ");
+  uart_puts("\nPress Q to quit the game: ");
+  uart_puts("\nPress P to pause the game: ");
+  uart_puts("\nPress R to restart the game: ");
+  uart_puts("\nPress C to continue the game: ");
+  uart_puts("\nPress A to move shooter to left: "); 
   uart_puts("\nPress D to move shooter to right: ");
+
   drawShooter(BASE_X, BASE_Y, shooter_angle); // Draw initial shooter
+
+  int isPaused = 0; // Game is running by default
   while (1) {
+    char input = uart_getc_game();
+
+    // Check for pause state first
+    if (isPaused) {
+      if (input == 'c') // Continue game
+      {
+        uart_puts("\nResuming Game\n");
+        drawImage(0, 0, myBackground, 700, 800);
+        copyBallsToScreen(); // Redraw the background or game elements
+        drawBallsMatrix();   // Redraw any active balls
+        drawShooter(BASE_X, BASE_Y, shooter_angle); // Redraw shooter
+        // drawBall(shooterBall);                      // Redraw current ball
+        updatePlayerScoreDisplay(&player);          // Redraw the player's score
+        isPaused = 0;                               // Unpause the game
+      } else if (input == 'q')                      // Quit game while paused
+      {
+        uart_puts("\nQuitting Game\n");
+        break; // Exit the game loop
+      }
+      continue; // Skip the rest of the loop if paused
+    }
+
+    updatePlayerScoreDisplay(&player); // Redraw the player's score
+
+    // Normal game loop when not paused
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     if (t < expiredTime) {
-      char input = uart_getc_game();
+      
       if (input == 'a') {
         move_left();
         drawBallsMatrix();
       } else if (input == 'd') {
         move_right();
         drawBallsMatrix();
-      } else if (input == 'q') {
+      } else if (input == 'q') { //quit
+        uart_puts("\nGame Quitting\n");
+        clearScreen();
+        displayGameIntro(0, 0);
         uart_puts("\n");
         break;
+      }else if(input == 'p'){ //pause
+        uart_puts("\nGame Paused\n");
+        // drawImage(0, 0, myPause, 700, 800); // Draw the pause image
+        isPaused = 1;                       // Set the game to paused
+        
+      }else if(input == 'r'){ //restart
+        uart_puts("\nRestarting the game\n");
+        clearScreen();
+        displayGameIntro(0, 0);
+        welcomeGame();
       }
       updatePlayerScoreDisplay(&player);
     } else {
