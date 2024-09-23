@@ -4,7 +4,6 @@
 #include "../uart/uart1.h"
 #include "./background.h"
 #include "./balls.h"
-#include "./displayGameFrame.h"
 #include "./interrupt.h"
 #include "./player.h"
 
@@ -106,7 +105,7 @@ void eraseShooter(int base_x, int base_y, int shooter_angle) {
   int cosine_val = get_cosine(shooter_angle);
 
   for (int i = 0; i < SHOOTER_LENGTH; i++) {
-    for (int j = -4; j <= 4; j++) {
+    for (int j = -2; j <= 2; j++) {
       int x = (base_x * 1000) + (cosine_val * i - sine_val * j);
       int y = (base_y * 1000) - (sine_val * i + cosine_val * j);
 
@@ -315,6 +314,7 @@ void moveShooter() {
 
   while (1) {
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
+    drawBallsMatrix();
     if (t < expiredTime) {
       if (!ballReady) {
         shooterBall.color = generateRandomColor();

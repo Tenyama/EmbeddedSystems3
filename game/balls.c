@@ -131,6 +131,7 @@ void resetVisited() {
   }
 }
 
+
 int is_valid(int x, int y, int color) {
   // Ensure the position is within bounds and the ball hasn't been visited yet
   // Also check that the color matches the original color

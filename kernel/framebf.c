@@ -13,6 +13,7 @@
 
 // Pixel Order: BGR in memory order (little endian --> RGB in byte order)
 #define PIXEL_ORDER 0
+#define CLEAR_COLOR 0x00000000  // Black color in ARGB format
 
 // Screen info
 unsigned int width, height, pitch;
@@ -334,4 +335,9 @@ void drawImageVideo(int start_x, int start_y, const unsigned int data[],
       index++;
     }
   }
+}
+
+void clear_term_Screen() {
+    // Send ANSI escape codes to clear the terminal and move the cursor to the top-left
+    uart_puts("\x1b[2J\x1b[H");
 }
