@@ -379,7 +379,6 @@ int bounceShooter()
   return 0;
 }
 
-// Function to move the ball and switch direction if it reaches bounce point
 void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle, float speed)
 {
   float currentX = ball->centerX;
@@ -403,30 +402,25 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle, float speed)
     currentX += deltaX;
     currentY += deltaY;
 
-    // Check for border collisions (left and right)
-    if (currentX <= 228 || currentX >= 700)
+    // Check if the ball hits the left border (reverse direction)
+    if (currentX <= 228)
     {
-      // Reflect ball direction at borders
-      shooter_angle = 180 - shooter_angle;
-
-      // Update the movement deltas based on the new direction
-      sine_val = get_sine(shooter_angle);
-      cosine_val = get_cosine(shooter_angle);
-      deltaX = (cosine_val * speed) / 1000.0;
-      deltaY = -(sine_val * speed) / 1000.0;
-
-      // Ensure the ball stays within bounds
-      currentX = (currentX <= 228) ? 228 : 700;
+      currentX = 228;   // Keep the ball in bounds
+      deltaX = -deltaX; // Reflect the ball by reversing its direction
     }
 
-    // Check if the ball has reached the bounce point
-    if (has_bounced && currentX == bounce_x && currentY == bounce_y)
+    // Check if the ball hits the right border (reverse direction)
+    if (currentX >= 700)
     {
-      // Switch ball direction at bounce point
-      switchBallDirectionAtBounce(ball);
+      currentX = 699;   // Keep the ball in bounds
+      deltaX = -deltaX; // Reflect the ball by reversing its direction
+      uart_puts("Reflected at right border\n");
+      uart_puts("New deltaX: ");
+      uart_dec(deltaX);
+      uart_puts("\n");
     }
 
-    // Update ball's center coordinates
+    // Update ball's center coordinates after applying the reflection logic
     ball->centerX = (int)currentX;
     ball->centerY = (int)currentY;
 
@@ -441,7 +435,6 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle, float speed)
   // Ball stops after hitting the boundary, no grid placement or collision detection
   uart_puts("Ball reached the boundary and stopped.\n");
 }
-
 
 // Function to switch the ball's direction when it reaches the bounce point
 void switchBallDirectionAtBounce(struct Ball *ball)
@@ -523,4 +516,3 @@ void moveShooter()
     }
   }
 }
-
