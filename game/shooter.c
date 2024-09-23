@@ -230,7 +230,12 @@ void shootBall(struct Ball ball, int startx, int starty, int angle) {
   eraseBall(ball);
   ball.centerX = end_x;
   ball.centerY = (rowsOnScreen * 59 + 29);
-  drawBall(ball);
+  registerBall(end_x, ball); // Get the row and column where the ball was placed
+  int final_row = rowsOnScreen;
+  int final_column = (end_x - 228) / 59;
+
+  // Check and handle explosion after placing the ball
+  handleExplosion(final_row, final_column);
 }
 
 void moveShooter() {
@@ -247,6 +252,8 @@ void moveShooter() {
 
   struct Ball shooterBall = {BASE_X, BASE_Y, 29, generateRandomColor()};
   drawBall(shooterBall);
+  int ballReady = 1;
+
   Player player;
   initPlayer(&player);
 
@@ -257,6 +264,11 @@ void moveShooter() {
   while (1) {
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     if (t < expiredTime) {
+      if (!ballReady) {
+        shooterBall.color = generateRandomColor();
+        drawBall(shooterBall);
+        ballReady = 1;
+      }
       char input = uart_getc_game();
       if (input == 'a') {
         move_left();
@@ -266,14 +278,16 @@ void moveShooter() {
         drawBallsMatrix();
       } else if (input == ' ') {
         shootBall(shooterBall, BASE_X, BASE_Y, shooter_angle);
+        ballReady = 0;
+        drawBallsMatrix();
       } else if (input == 'q') {
         uart_puts("\n");
         break;
       }
       updatePlayerScoreDisplay(&player);
     } else {
-      // copyBallsToScreen();
-      // drawBallsMatrix();
+      copyBallsToScreen();
+      drawBallsMatrix();
       expiredTime = t + f * msVal / 1000;
     }
   }
