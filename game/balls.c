@@ -1,9 +1,10 @@
 #include "./balls.h"
 #include "../kernel/framebf.h"
 #include "../uart/uart1.h"
+#include "./ballExplode.h"
+#include "./interrupt.h"
+
 typedef unsigned char uint8_t;
-#define ROWS 16
-#define COLS 8
 
 // Directions: left, right, up, down, diagonals
 int dx[] = {-1, 1, 0, 0};
@@ -11,32 +12,23 @@ int dy[] = {0, 0, -1, 1};
 
 // Forward declaration of generateRandomColor()
 unsigned int
-generateRandomColor(); // Declare the function prototype before its usage
-
-// Function to generate a pseudo-random number using LCG
-unsigned int rand_custom() {
-  static unsigned int seed = 123456789; // Initialize with an arbitrary value
-  seed = (1103515245 * seed + 12345) & 0x7FFFFFFF; // LCG formula
-  return seed;
-}
-
-// Function to generate a random number within a range [0, max)
-unsigned int rand_range(unsigned int max) {
-  return rand_custom() % max; // Limit the random number to the range [0, max)
-}
-
-// Function to generate a random color (either yellow, blue, or red)
-unsigned int generateRandomColor() {
+generateRandomColor() { // Declare the function prototype before its usage
   unsigned int colors[3] = {
-      0xFFFFFF00, // Yellow (fully opaque)
-      0xFF0000FF, // Blue (fully opaque)
-      0xFFFF0000  // Red (fully opaque)
+      0xFFFFFF00, // Yellow
+      0xFF0000FF, // Blue
+      0xFFFF0000  // Red
   };
 
-  // Randomly select one of the three colors
-  unsigned int randomIndex =
-      rand_range(3);          // Get a random index between 0 and 2
-  return colors[randomIndex]; // Return the randomly selected color
+  // Use the system timer to introduce randomness
+  unsigned long timerValue;
+  asm volatile("mrs %0, cntpct_el0"
+               : "=r"(timerValue)); // Read the current timer value
+
+  // Use the timer value to pick a random index (0, 1, or 2)
+  unsigned int randomIndex = timerValue % 3;
+
+  // Return the color at the random index
+  return colors[randomIndex];
 }
 
 // Function to draw a circle given its center, radius, and color
@@ -56,12 +48,12 @@ void drawCircle(int centerX, int centerY, int radius, unsigned int color) {
 void drawBall(struct Ball ball) {
   drawCircle(ball.centerX, ball.centerY, ball.radius, ball.color);
 }
+void eraseBall(struct Ball ball) {
+  eraseLCircle(ball.centerX, ball.centerY, ball.radius);
+}
 
-// Array to hold multiple balls
 struct Ball balls[ROWS][COLS];
-
-struct Ball viewableBalls[ROWS][COLS] = {{{0}}}; //= balls[1][COLS] interrupt ->
-                                                 // viewableBalls[1][COLS] =
+struct Ball viewableBalls[ROWS][COLS] = {{{0}}};
 int rowsOnScreen = 0;
 
 void initializeBalls() {
@@ -119,36 +111,168 @@ void copyBallsToScreen() {
 }
 
 void drawBallsMatrix() {
-  for (int i = 0; i < rowsOnScreen; i++) {
+  for (int i = 0; i < ROWS; i++) {
     for (int j = 0; j < COLS; j++) {
       drawBall(viewableBalls[i][j]);
     }
   }
 }
 
-int is_valid(int x, int y, int color) {
-  return x >= 0 && x < ROWS && y >= 0 && y < COLS && balls[x][y].color == color;
+int getMaxRow(int currentX) {
+  // Determine the column based on the ball's X position
+  int column = (currentX - 228) / 59;
+  if (column > 7) {
+    column = 7;
+  } else if (column < 0) {
+    column = 0;
+  }
+  for (int row = ROWS - 1; row > 0; row--) {
+    if (viewableBalls[row][column].centerX != 0)
+      return row + 1;
+  }
+  return 1;
 }
 
-int depthFirstSearch(int x, int y, int color) {
-  if (!is_valid(x, y, color))
-    return 0;
-  balls[x][y].color = 0;
+// Declare a visited array globally or pass it to the function
+int visited[ROWS][COLS];
 
+// Initialize the visited array before starting the depth-first search
+
+void resetVisited() {
+  for (int i = 0; i < ROWS; i++) {
+    for (int j = 0; j < COLS; j++) {
+      visited[i][j] = 0;
+    }
+  }
+}
+
+int is_valid(int x, int y, int color) {
+  // Ensure the position is within bounds and the ball hasn't been visited yet
+  // Also check that the color matches the original color
+  return x >= 0 && x < ROWS && y >= 0 && y < COLS &&
+         viewableBalls[x][y].color == color && !visited[x][y];
+}
+int depthFirstSearch(int x, int y, int color) {
+  // If the ball is not valid (out of bounds or already visited), return
+  if (!is_valid(x, y, color)) {
+
+    return 0;
+  }
+  // Log for debugging
+  uart_puts("Checking position: ");
+  uart_dec(x);
+  uart_puts(", ");
+  uart_dec(y);
+  uart_puts("\n");
+  // Mark this ball as visited in the auxiliary array
+  visited[x][y] = 1;
   int count = 1;
   for (int i = 0; i < 4; i++) {
     int new_x = x + dx[i];
     int new_y = y + dy[i];
     count += depthFirstSearch(new_x, new_y, color);
   }
-
   return count;
 }
-
 // Function to check if the placed ball can explode
 int check_explosion(int x, int y) {
-  unsigned int color = balls[x][y].color;
+  unsigned int color = viewableBalls[x][y].color;
+  resetVisited(); // Clear the visited array before each check
   int connected_count = depthFirstSearch(x, y, color);
+  if (connected_count >= 3) {
+    uart_puts("BOOM");
+    return 1;
+  }
+  return 0;
+}
 
-  return (connected_count >= 3);
+// Function to clear all connected balls of the same color
+void clearConnectedBalls(int row, int col, int color) {
+  resetVisited();
+  if (!is_valid(row, col, color)) {
+    return;
+  }
+  uart_puts("\n X: ");
+  uart_dec(viewableBalls[row][col].centerX);
+  uart_puts(" Y: ");
+  uart_dec(viewableBalls[row][col].centerY);
+  eraseBall(viewableBalls[row][col]);
+  // Clear the current ball (set its color to 0)
+  viewableBalls[row][col] = resetBall();
+  drawExplode(viewableBalls[row][col].centerX, viewableBalls[row][col].centerY);
+  wait_msec(50);
+  // Recursively clear adjacent balls of the same color
+  for (int i = 0; i < 4; i++) {
+    int new_row = row + dx[i];
+    int new_col = col + dy[i];
+    clearConnectedBalls(new_row, new_col, color);
+  }
+}
+
+// Function to handle the explosion logic
+void handleExplosion(int row, int col) {
+  unsigned int color =
+      viewableBalls[row][col].color; // Store the color before clearing
+
+  // Check if the placed ball can cause an explosion
+  if (check_explosion(row, col) == 1) {
+    // Animate explosion at the coordinates of the center ball
+    drawExplode(viewableBalls[row][col].centerX,
+                viewableBalls[row][col].centerY);
+    wait_msec(100);
+    clearExplosion(viewableBalls[row][col].centerX,
+                   viewableBalls[row][col].centerY);
+    // Clear the balls involved in the explosion by setting their color to 0
+    clearConnectedBalls(row, col, color); // Pass the stored color
+    // Redraw the screen to reflect the cleared balls
+    drawBallsMatrix();
+  }
+}
+
+void registerBall(int end_x, struct Ball ball) {
+  // Determine the column based on the ball's X position
+  int column = (end_x - 228) / 59;
+  if (column > 7) {
+    column = 7;
+  } else if (column < 0) {
+    column = 0;
+  }
+
+  // Start from the bottom row (ROWS - 1) and check upwards for an empty spot in
+  // the column
+  int row = ROWS - 1; // Start from the last row
+  while (row >= 0 && viewableBalls[row][column].centerX == 0) {
+    row--; // Move up to the next available row if the current one is
+    // occupied
+  }
+  row++;
+  // int row = (ball.centerY / 59);
+
+  // If we found a valid row, register the ball there
+  if (row >= 0) {
+    // Set ball's position based on the row and column
+    ball.centerX = 256 + column * 59;
+    // Calculate the correct X position based on column
+    ball.centerY = row * 59 + 29;
+    // Calculate the correct Y position based on row
+
+    // Store the ball in the matrix
+    viewableBalls[row][column] = ball;
+
+    // Output ball's position for debugging
+    uart_puts("\n Ball registered at row: ");
+    uart_dec(row);
+    uart_puts(" column: ");
+    uart_dec(column);
+    uart_puts(" -> X: ");
+    uart_dec(viewableBalls[row][column].centerX);
+    uart_puts(" Y: ");
+    uart_dec(viewableBalls[row][column].centerY);
+    uart_puts(" Color: ");
+    uart_hex(viewableBalls[row][column].color);
+    uart_puts("\n");
+    handleExplosion(row, column);
+  } else {
+    uart_puts("Error: No available row to register the ball!\n");
+  }
 }

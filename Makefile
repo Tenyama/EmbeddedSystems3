@@ -1,4 +1,3 @@
-
 #--------------------------------------Makefile-------------------------------------
 
 CFILES = $(wildcard ./kernel/*.c) $(wildcard ./game/*.c)
@@ -34,11 +33,11 @@ kernel8.img: ./build/boot.o ./build/uart.o $(OFILES)
 	aarch64-none-elf-objcopy -O binary ./build/kernel8.elf kernel8.img
 
 clean:
-	del .\build\kernel8.elf .\build\*.o .\build\kernel*.o .\build\game*.o *.img
+	rm -f .\build\kernel8.elf .\build\*.o .\build\kernel*.o .\build\game*.o *.img
 
 # Run emulation with QEMU
 run1: 
-	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -serial null -serial stdio
+	qemu-system-aarch64 -M raspi3b -kernel kernel8.img -serial null -serial stdio
 
 run0: 
-	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -serial stdio
+	qemu-system-aarch64 -M raspi3b -kernel kernel8.img -serial stdio

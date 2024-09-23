@@ -1,6 +1,7 @@
 // ----------------------------------- framebf.c
 // -------------------------------------
 #include "../font/font.h"
+#include "../game/background.h"
 #include "../uart/uart0.h"
 #include "../uart/uart1.h"
 #include "./mbox.h"
@@ -253,7 +254,48 @@ void drawLCircle(int center_x, int center_y, int radius, unsigned int attr,
     drawPixelARGB32(right_x, y, attr);
   }
 }
+unsigned int getBackgroundPixelColor(int x, int y) {
+  // Return the color of the pixel at (x, y) from the background image
+  return myBackground[y * 700 + x]; // Assuming background is a 1D array
+}
 
+// Function to draw a pixel from the background image at a specific position
+void drawBackgroundPixel(int x, int y) {
+  unsigned int color =
+      getBackgroundPixelColor(x, y); // Fetch pixel from background
+  drawPixelARGB32(x, y, color); // Draw that pixel at the specified location
+}
+
+void eraseLCircle(int center_x, int center_y, int radius) {
+  // Draw the circle when going on x side
+  for (int x = center_x - radius; x <= center_x + radius; x++) {
+    // Calculate the corresponding y values using the circle equation
+    int dy = sqrt(radius * radius - (x - center_x) * (x - center_x));
+    int upper_y = center_y + dy;
+    int lower_y = center_y - dy;
+
+    drawBackgroundPixel(x, upper_y);
+    drawBackgroundPixel(x, lower_y);
+
+    for (int y = lower_y; y <= upper_y; y++) {
+      drawBackgroundPixel(x, y);
+    }
+  }
+
+  /* Also draw the circle border when going on y side (
+  since some points may be missing due to inaccurate calculation above) */
+
+  for (int y = center_y - radius; y <= center_y + radius; y++) {
+    // Calculate the corresponding x values using the circle equation
+    int dx = sqrt(radius * radius - (y - center_y) * (y - center_y));
+
+    int left_x = center_x - dx;
+    int right_x = center_x + dx;
+
+    drawBackgroundPixel(left_x, y);
+    drawBackgroundPixel(right_x, y);
+  }
+}
 void draw_char(int x, int y, char c, unsigned int color, int scale) {
   if (c < 32 || c > 126)
     return; // Ensure valid character range within 32 to 126
