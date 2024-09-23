@@ -184,20 +184,20 @@ void check_baudrate_uart1() {
 
 // Directly set the divisor for baudrate
 void set_baudrate_uart1(unsigned int user_baudrate_divisor) {
-    // Disable UART temporarily to set baudrate
-    AUX_MU_CNTL = 0;  // Disable transmitter and receiver
+    // // Disable UART temporarily to set baudrate
+    // AUX_MU_CNTL = 0;  // Disable transmitter and receiver
 
-    // Directly set the divisor based on user input
-    AUX_MU_BAUD = user_baudrate_divisor;
-    baudrate_divisor = user_baudrate_divisor;  // Store globally
+    // // Directly set the divisor based on user input
+    // AUX_MU_BAUD = user_baudrate_divisor;
+    // baudrate_divisor = user_baudrate_divisor;  // Store globally
 
-    // Re-enable UART transmitter and receiver
-    AUX_MU_CNTL = 3;
+    // // Re-enable UART transmitter and receiver
+    // AUX_MU_CNTL = 3;
 
-    // Debugging: Print the divisor
-    uart_puts("Set baudrate divisor: ");
-    uart_dec(user_baudrate_divisor);
-    uart_puts("\n");
+    // // Debugging: Print the divisor
+    // uart_puts("Set baudrate divisor: ");
+    // uart_dec(user_baudrate_divisor);
+    // uart_puts("\n");
 }
 
 
