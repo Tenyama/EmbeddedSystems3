@@ -233,9 +233,6 @@ void shootBall(struct Ball ball, int startx, int starty, int angle) {
   registerBall(end_x, ball); // Get the row and column where the ball was placed
   int final_row = rowsOnScreen;
   int final_column = (end_x - 228) / 59;
-
-  // Check and handle explosion after placing the ball
-  handleExplosion(final_row, final_column);
 }
 
 void moveShooter() {
@@ -248,6 +245,10 @@ void moveShooter() {
 
   initializeBalls();
   copyBallsToScreen();
+  drawBallsMatrix();
+  copyBallsToScreen();
+  copyBallsToScreen();
+  drawBallsMatrix();
   drawBallsMatrix();
 
   struct Ball shooterBall = {BASE_X, BASE_Y, 29, generateRandomColor()};
@@ -263,6 +264,7 @@ void moveShooter() {
 
   while (1) {
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
+    drawBallsMatrix();
     if (t < expiredTime) {
       if (!ballReady) {
         shooterBall.color = generateRandomColor();
@@ -286,8 +288,8 @@ void moveShooter() {
       }
       updatePlayerScoreDisplay(&player);
     } else {
-      copyBallsToScreen();
-      drawBallsMatrix();
+      // copyBallsToScreen();
+      // drawBallsMatrix();
       expiredTime = t + f * msVal / 1000;
     }
   }
