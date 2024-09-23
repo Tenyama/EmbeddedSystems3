@@ -16,6 +16,7 @@ void uart_init() {
   AUX_MU_MCR = 0;         // clear RTS (request to send)
   AUX_MU_IER = 0;         // disable interrupts8
   AUX_MU_IIR = 0xc6;      // enable and clear FIFOs
+
   AUX_MU_BAUD = baudrate; // configure 115200 baud rate
                           // [system_clk_freq/(baud_rate*8) - 1]
 
@@ -160,13 +161,7 @@ void uart_dec(int num) {
   uart_puts(str);
 }
 
-void set_baudrate_uart1(volatile unsigned int baudrate) {
-  AUX_MU_CNTL = 0; // Disable UART
-  unsigned int baudrate_div = (SYSTEM_CLOCK / (8 * baudrate)) - 1;
-  AUX_MU_BAUD = baudrate_div; // Set baudrate divisor
-  asm volatile("dsb sy");     // Data Synchronization Barrier
-  AUX_MU_CNTL = 3;            // Re-enable UART
-}
+
 
 // Function to set the stopbits
 void set_stopbits_uart1(int stopbits) {
@@ -178,18 +173,33 @@ void set_stopbits_uart1(int stopbits) {
   }
 }
 
+// Check baudrate
 void check_baudrate_uart1() {
-  unsigned int baudrate_div = baudrate; // Read the current baudrate divisor
-  uart_puts("Current baudrate divisor: ");
-  uart_dec(baudrate_div);
-  uart_puts("\n");
-
-  // Optionally, calculate the baudrate based on the divisor
-  int actual_baudrate = SYSTEM_CLOCK / (8 * (baudrate_div + 1));
-  uart_puts("Actual baudrate: ");
-  uart_dec(actual_baudrate);
-  uart_puts("\n");
+    unsigned int divisor = AUX_MU_BAUD;  // Read the current divisor
+    uart_puts("Current baudrate divisor: ");
+    uart_dec(divisor);
+    uart_puts("\n");
 }
+
+
+// Directly set the divisor for baudrate
+void set_baudrate_uart1(unsigned int user_baudrate_divisor) {
+    // Disable UART temporarily to set baudrate
+    AUX_MU_CNTL = 0;  // Disable transmitter and receiver
+
+    // Directly set the divisor based on user input
+    AUX_MU_BAUD = user_baudrate_divisor;
+    baudrate_divisor = user_baudrate_divisor;  // Store globally
+
+    // Re-enable UART transmitter and receiver
+    AUX_MU_CNTL = 3;
+
+    // Debugging: Print the divisor
+    uart_puts("Set baudrate divisor: ");
+    uart_dec(user_baudrate_divisor);
+    uart_puts("\n");
+}
+
 
 void check_stopbits_uart1() {
   unsigned int lcr = AUX_MU_LCR; // Read the Line Control Register
