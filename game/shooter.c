@@ -4,7 +4,6 @@
 #include "../uart/uart1.h"
 #include "./background.h"
 #include "./balls.h"
-#include "./displayGameFrame.h"
 #include "./interrupt.h"
 #include "./player.h"
 
