@@ -2,8 +2,7 @@
 #include "../kernel/framebf.h"
 #include "../uart/uart1.h"
 typedef unsigned char uint8_t;
-#define ROWS 16
-#define COLS 8
+
 
 // Directions: left, right, up, down, diagonals
 int dx[] = {-1, 1, 0, 0};
@@ -57,7 +56,6 @@ void eraseBall(struct Ball ball)
   eraseLCircle(ball.centerX, ball.centerY, ball.radius);
 }
 
-// Array to hold multiple balls
 struct Ball balls[ROWS][COLS];
 struct Ball viewableBalls[ROWS][COLS] = {{{0}}};
 int rowsOnScreen = 0;

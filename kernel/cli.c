@@ -151,7 +151,7 @@ void cli() {
   } else if (string_compare(cli_buffer, "display image")) {
     draw();
   } else if (string_compare(cli_buffer, "play video")) {
-    playVideo();
+    //playVideo();
   } else if (string_compare(cli_buffer, "game")) {
     playGame();
   } else if (string_compare(cli_buffer, "exit")) {
