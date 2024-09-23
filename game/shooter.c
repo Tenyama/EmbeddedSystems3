@@ -10,41 +10,71 @@
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
-#define ANGLE_STEP 5
+#define ANGLE_STEP 2
 #define SCREEN_WIDTH 700
 #define SCREEN_HEIGHT 800
+#define PI 3.14159265358979323846
 
 // Shooter's base point (assumed at the center bottom of the screen)
 #define BASE_X ((SCREEN_WIDTH + 228) / 2)
 #define BASE_Y SCREEN_HEIGHT
 
 // Length of the shooter (the line)
-#define SHOOTER_LENGTH 700 - (rowsOnScreen * 59)
+#define SHOOTER_LENGTH 700
 
 // Initialize the shooter's current angle
 int shooter_angle = 90; // Start at 90 degrees (straight up)
 
-const int sine_table[37] = {0, 87, 173, 258, 342, 422, 500, 573, 642, 707,
-                            766, 819, 866, 906, 939, 965, 984, 996, 1000, 996,
-                            984, 965, 939, 906, 866, 819, 766, 707, 642, 573,
-                            500, 422, 342, 258, 173, 87, 0};
+// Helper function to convert degrees to radians
+double degreesToRadians(double degrees) { return degrees * PI / 180.0; }
 
-const int cosine_table[37] = {1000, 996, 984, 965, 939, 906, 866, 819,
-                              766, 707, 642, 573, 500, 422, 342, 258,
-                              173, 87, 0, -87, -173, -258, -342, -422,
-                              -500, -573, -642, -707, -766, -819, -866, -906,
-                              -939, -965, -984, -996, -1000};
-
-// Function to get sine value from the lookup table based on the angle
-int get_sine(int angle)
+// Helper function to calculate factorial
+long factorial(int n)
 {
-  return sine_table[angle / 5]; // Divide by 10 to get the index for the table
+  long result = 1;
+  for (int i = 2; i <= n; ++i)
+  {
+    result *= i;
+  }
+  return result;
 }
 
-// Function to get cosine value from the lookup table based on the angle
-int get_cosine(int angle)
+// Sine function using Taylor Series expansion
+double get_sine(double degrees)
 {
-  return cosine_table[angle / 5]; // Divide by 10 to get the index for the table
+  double radians = degreesToRadians(degrees);
+  double sine = 0.0;
+  double term = radians;
+  int sign = 1;
+
+  // Using 5 terms of the Taylor Series
+  for (int i = 1; i <= 9; i += 2)
+  {
+    sine += sign * term;
+    term *= (radians * radians) / ((i + 1) * (i + 2));
+    sign = -sign; // Alternate sign
+  }
+
+  return sine * 1000;
+}
+
+// Cosine function using Taylor Series expansion
+double get_cosine(double degrees)
+{
+  double radians = degreesToRadians(degrees);
+  double cosine = 0.0;
+  double term = 1.0;
+  int sign = 1;
+
+  // Using 5 terms of the Taylor Series
+  for (int i = 0; i <= 8; i += 2)
+  {
+    cosine += sign * term;
+    term *= (radians * radians) / ((i + 1) * (i + 2));
+    sign = -sign; // Alternate sign
+  }
+
+  return cosine * 1000;
 }
 
 // Function to calculate the endpoint of the shooter based on the angle
@@ -119,7 +149,7 @@ void drawShooter(int base_x, int base_y, int shooter_angle)
 
   for (int i = 0; i < SHOOTER_LENGTH; i++)
   {
-    for (int j = -4; j <= 4; j++)
+    for (int j = -2; j <= 2; j++)
     {
       // Calculating x and y based on shooter angle and length
       int x = (base_x * 1000) + (cosine_val * i - sine_val * j);
@@ -152,37 +182,6 @@ int reflected_angle;
 // Global variables to track if the shooter bounced and the bounce point
 int has_bounced = 0;
 int bounce_x = 0, bounce_y = 0;
-
-// // Function to bounce the shooter off the borders
-// int bounceShooter()
-// {
-//   eraseShooter(end_x, end_y, reflected_angle);
-//   calculateShooterEndpoint(BASE_X, BASE_Y, shooter_angle, &end_x, &end_y);
-//   uart_dec(end_x);
-//   uart_puts("  ");
-//   uart_dec(end_y);
-
-//   // Check for border collisions
-//   if (end_x <= 228 || end_x >= 700)
-//   {
-//     // Shooter hits left or right border, bounce it by mirroring the angle
-//     reflected_angle = 180 - shooter_angle;
-//     // Update shooter_angle to reflect the new direction after bouncing
-//     // shooter_angle = reflected_angle;
-
-//     // Track the bounce point
-//     bounce_x = end_x;
-//     bounce_y = end_y;
-//     has_bounced = 1;
-
-//     uart_puts("Shooter bounced off the border!\n");
-//     drawShooter(end_x, end_y, reflected_angle);
-//     drawShooter(BASE_X, BASE_Y, shooter_angle);
-//     eraseShooter(end_x, end_y, shooter_angle);
-//     return 1;
-//   }
-//   return 0;
-// }
 
 // Function to move the shooter to the left
 void move_left()
@@ -248,108 +247,6 @@ void move_right()
   }
 }
 
-// void shootBall(struct Ball ball, int startx, int starty, int angle)
-// {
-//   int i = 1;
-//   // // The angle passed will now be the updated shooter_angle
-//   int current_angle = angle;
-
-//   while (ball.centerY > (rowsOnScreen + 1) * 59 + 29)
-//   {
-//     int steps = SCREEN_HEIGHT / ((rowsOnScreen * 59 + 29) / 2) - 2;
-//     int x_step_value = (startx - end_x) / steps;
-//     // Checking if the rounded coordinates are within screen boundaries
-//     eraseBall(ball);
-
-//     ball.centerX -= x_step_value;
-//     uart_puts("\n");
-//     uart_dec(ball.centerX);
-//     ball.centerY -= (rowsOnScreen * 59 + 29) / 2;
-//     drawBall(ball);
-//     wait_msec(50);
-
-//     // If the ball reaches the screen border, bounce it off by updating its trajectory
-//     if (ball.centerX <= 228 || ball.centerX >= 700)
-//     {
-//       // Reflect the ball's angle (same as reflecting the shooter)
-//       current_angle = 180 - current_angle;
-//       ball.centerX = ball.centerX <= 228 ? 228 : 700; // Keep the ball within bounds
-//     }
-//   }
-//   eraseBall(ball);
-//   ball.centerX = end_x;
-//   ball.centerY = (rowsOnScreen * 59 + 29);
-//   drawBall(ball);
-// }
-
-// void shootBall(struct Ball ball, int startx, int starty, int angle)
-// {
-//     int i = 1;
-//     int current_angle = angle; // Start with the shooter's angle
-
-//     // If there's a bounce, move the ball to the bounce point first
-//     if (has_bounced)
-//     {
-//         while ((ball.centerX != bounce_x || ball.centerY != bounce_y) &&
-//                ball.centerY > (rowsOnScreen + 1) * 59 + 29)
-//         {
-//             int steps = SCREEN_HEIGHT / ((rowsOnScreen * 59 + 29) / 2) - 2;
-//             int x_step_value = (startx - bounce_x) / steps;
-
-//             // Erase the ball from the screen
-//             eraseBall(ball);
-
-//             // Move the ball toward the bounce point
-//             ball.centerX -= x_step_value;
-//             ball.centerY -= (rowsOnScreen * 59 + 29) / 2;
-
-//             // Draw the ball at the new position
-//             drawBall(ball);
-//             wait_msec(50);
-
-//             // Check if the ball reaches the bounce point
-//             if (ball.centerX == bounce_x && ball.centerY == bounce_y)
-//             {
-//                 uart_puts("Ball reached the bounce point.\n");
-//                 current_angle = reflected_angle; // Change the ball's direction
-//                 break;
-//             }
-//         }
-//     }
-
-//     // Move the ball along the new reflected angle after the bounce
-//     while (ball.centerY > (rowsOnScreen + 1) * 59 + 29)
-//     {
-//         int steps = SCREEN_HEIGHT / ((rowsOnScreen * 59 + 29) / 2) - 2;
-//         int x_step_value = (startx - end_x) / steps;
-
-//         // Erase the ball from the screen
-//         eraseBall(ball);
-
-//         // Update the ball's position based on the current angle
-//         ball.centerX -= x_step_value;
-//         ball.centerY -= (rowsOnScreen * 59 + 29) / 2;
-
-//         // Draw the ball at the new position
-//         drawBall(ball);
-//         wait_msec(50);
-
-//         // Check if the ball hits the screen borders
-//         if (ball.centerX <= 228 || ball.centerX >= 700)
-//         {
-//             // Reflect the ball's angle again if it hits the screen borders
-//             current_angle = 180 - current_angle;
-//             ball.centerX = (ball.centerX <= 228) ? 228 : 700; // Keep the ball within screen bounds
-//         }
-//     }
-
-//     // Place the ball at the final position
-//     eraseBall(ball);
-//     ball.centerX = end_x;
-//     ball.centerY = (rowsOnScreen * 59 + 29);
-//     drawBall(ball);
-// }
-
 // Function to bounce the shooter off the borders
 int bounceShooter()
 {
@@ -393,8 +290,9 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle, float speed)
   float deltaY = -(sine_val * speed) / 1000.0;
 
   // Keep moving the ball until it hits the screen boundary or bounce point
-  while (currentX >= 0 && currentX < SCREEN_WIDTH && currentY >= 0 && currentY < SCREEN_HEIGHT)
+  while (currentX >= 0 && currentX < SCREEN_WIDTH && currentY > (rowsOnScreen) * 59 + 29 && currentY < SCREEN_HEIGHT)
   {
+
     // Erase the ball from its current position
     eraseBall(*ball);
 
@@ -403,9 +301,9 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle, float speed)
     currentY += deltaY;
 
     // Check if the ball hits the left border (reverse direction)
-    if (currentX <= 228)
+    if (currentX <= 256)
     {
-      currentX = 228;   // Keep the ball in bounds
+      currentX = 256;   // Keep the ball in bounds
       deltaX = -deltaX; // Reflect the ball by reversing its direction
     }
 
@@ -423,7 +321,7 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle, float speed)
     // Update ball's center coordinates after applying the reflection logic
     ball->centerX = (int)currentX;
     ball->centerY = (int)currentY;
-
+    registerBall(end_x, *ball);
     // Draw the ball at the new position
     drawBall(*ball);
 
@@ -477,8 +375,10 @@ void moveShooter()
   while (1)
   {
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
-    if (t < expiredTime) {
-      if (!ballReady) {
+    if (t < expiredTime)
+    {
+      if (!ballReady)
+      {
         shooterBall.color = generateRandomColor();
         drawBall(shooterBall);
         ballReady = 1;
@@ -505,7 +405,7 @@ void moveShooter()
         shooterBall.centerY = 771;
         shooterBall.color = generateRandomColor(); // Generate a new random color for the next ball
 
-        //drawBall(shooterBall); // Draw the new ball ready for the next shot
+        // drawBall(shooterBall); // Draw the new ball ready for the next shot
         ballReady = 0;
         drawBallsMatrix();
       }
