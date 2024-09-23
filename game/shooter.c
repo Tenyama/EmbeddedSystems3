@@ -464,6 +464,8 @@ void moveShooter()
   drawBallsMatrix();
 
   struct Ball shooterBall = {BASE_X, 771, 29, generateRandomColor()};
+  int ballReady = 1;
+
   Player player;
   initPlayer(&player);
 
@@ -475,8 +477,12 @@ void moveShooter()
   while (1)
   {
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
-    if (t < expiredTime)
-    {
+    if (t < expiredTime) {
+      if (!ballReady) {
+        shooterBall.color = generateRandomColor();
+        drawBall(shooterBall);
+        ballReady = 1;
+      }
       char input = uart_getc_game();
       if (input == 'a')
       {
@@ -499,7 +505,9 @@ void moveShooter()
         shooterBall.centerY = 771;
         shooterBall.color = generateRandomColor(); // Generate a new random color for the next ball
 
-        drawBall(shooterBall); // Draw the new ball ready for the next shot
+        //drawBall(shooterBall); // Draw the new ball ready for the next shot
+        ballReady = 0;
+        drawBallsMatrix();
       }
       else if (input == 'q')
       {
