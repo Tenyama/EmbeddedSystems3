@@ -1,9 +1,8 @@
+#include "../kernel/framebf.h"
 #include "../uart/uart0.h"
-#include "../uart/uart0.h"
-#include "./gameIntro.h"
 #include "./background.h"
-
-
+#include "./gameIntro.h"
+#include "./shooter.h"
 
 void displayGameIntro(int x, int y) {
   for (int h = 0; h < 800; h++) {
@@ -20,11 +19,12 @@ void displayGameIntro(int x, int y) {
   }
 }
 
-void welcomeGame(){
-    uart_puts("Press space to confirm");
-    displayGameIntro(0, 0);
-    char input = uart_getc();
-    if(input == ' '){
-         drawImage(0, 0, myBackground, 700, 800);
-    }
+void welcomeGame() {
+  displayGameIntro(0, 0);
+  uart_puts("Press space to confirm");
+  char input = uart_getc();
+  if (input == ' ') {
+    drawImage(0, 0, myBackground, 700, 800);
+    moveShooter();
+  }
 }
