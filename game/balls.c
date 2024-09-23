@@ -6,7 +6,6 @@
 
 typedef unsigned char uint8_t;
 
-
 // Directions: left, right, up, down, diagonals
 int dx[] = {-1, 1, 0, 0};
 int dy[] = {0, 0, -1, 1};
@@ -119,9 +118,11 @@ void drawBallsMatrix() {
   }
 }
 // Declare a visited array globally or pass it to the function
+
 int visited[ROWS][COLS];
 
 // Initialize the visited array before starting the depth-first search
+
 void resetVisited() {
   for (int i = 0; i < ROWS; i++) {
     for (int j = 0; j < COLS; j++) {
@@ -129,39 +130,35 @@ void resetVisited() {
     }
   }
 }
+
 int is_valid(int x, int y, int color) {
   // Ensure the position is within bounds and the ball hasn't been visited yet
   // Also check that the color matches the original color
   return x >= 0 && x < ROWS && y >= 0 && y < COLS &&
          viewableBalls[x][y].color == color && !visited[x][y];
 }
-
 int depthFirstSearch(int x, int y, int color) {
   // If the ball is not valid (out of bounds or already visited), return
   if (!is_valid(x, y, color)) {
+
     return 0;
   }
-
-  // Mark this ball as visited in the auxiliary array
-  visited[x][y] = 1;
-
   // Log for debugging
   uart_puts("Checking position: ");
   uart_dec(x);
   uart_puts(", ");
   uart_dec(y);
   uart_puts("\n");
-
+  // Mark this ball as visited in the auxiliary array
+  visited[x][y] = 1;
   int count = 1;
   for (int i = 0; i < 4; i++) {
     int new_x = x + dx[i];
     int new_y = y + dy[i];
     count += depthFirstSearch(new_x, new_y, color);
   }
-
   return count;
 }
-
 // Function to check if the placed ball can explode
 int check_explosion(int x, int y) {
   unsigned int color = viewableBalls[x][y].color;
@@ -176,15 +173,19 @@ int check_explosion(int x, int y) {
 
 // Function to clear all connected balls of the same color
 void clearConnectedBalls(int row, int col, int color) {
+  resetVisited();
   if (!is_valid(row, col, color)) {
     return;
   }
-
+  uart_puts("\n X: ");
+  uart_dec(viewableBalls[row][col].centerX);
+  uart_puts(" Y: ");
+  uart_dec(viewableBalls[row][col].centerY);
+  eraseBall(viewableBalls[row][col]);
   // Clear the current ball (set its color to 0)
   viewableBalls[row][col] = resetBall();
   drawExplode(viewableBalls[row][col].centerX, viewableBalls[row][col].centerY);
-  wait_msec(200);
-
+  wait_msec(50);
   // Recursively clear adjacent balls of the same color
   for (int i = 0; i < 4; i++) {
     int new_row = row + dx[i];
@@ -199,19 +200,15 @@ void handleExplosion(int row, int col) {
       viewableBalls[row][col].color; // Store the color before clearing
 
   // Check if the placed ball can cause an explosion
-  if (check_explosion(row, col)) {
+  if (check_explosion(row, col) == 1) {
     // Animate explosion at the coordinates of the center ball
     drawExplode(viewableBalls[row][col].centerX,
                 viewableBalls[row][col].centerY);
-    wait_msec(200);
-
-    // Clear the balls involved in the explosion by setting their color to 0
-    clearConnectedBalls(row, col, color); // Pass the stored color
-
-    // Optionally, clear the explosion animation from the screen
+    wait_msec(100);
     clearExplosion(viewableBalls[row][col].centerX,
                    viewableBalls[row][col].centerY);
-
+    // Clear the balls involved in the explosion by setting their color to 0
+    clearConnectedBalls(row, col, color); // Pass the stored color
     // Redraw the screen to reflect the cleared balls
     drawBallsMatrix();
   }
@@ -226,15 +223,18 @@ void registerBall(int end_x, struct Ball ball) {
     column = 0;
   }
 
-  // Start from the top row (row 0) and check downwards for an empty spot in the
-  // column
-  int row = 0;
-  while (row <= ROWS && viewableBalls[row][column].centerX != 0) {
-    row++; // Move down to the next available row if the current one is occupied
-  }
+  // Start from the bottom row (ROWS - 1) and check upwards for an empty spot in
+  // the column
+  // int row = ROWS - 1; // Start from the last row
+  // while (row >= 0 && viewableBalls[row][column].centerX == 0) {
+  //   row--; // Move up to the next available row if the current one is
+  //   occupied
+  // }
+  int row = ball.centerY / 59;
 
+  row++;
   // If we found a valid row, register the ball there
-  if (row <= ROWS) {
+  if (row >= 0) {
     // Set ball's position based on the row and column
     ball.centerX = 256 + column * 59;
     // Calculate the correct X position based on column
