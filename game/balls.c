@@ -225,14 +225,14 @@ void registerBall(int end_x, struct Ball ball) {
 
   // Start from the bottom row (ROWS - 1) and check upwards for an empty spot in
   // the column
-  // int row = ROWS - 1; // Start from the last row
-  // while (row >= 0 && viewableBalls[row][column].centerX == 0) {
-  //   row--; // Move up to the next available row if the current one is
-  //   occupied
-  // }
-  int row = ball.centerY / 59;
+  int row = ROWS - 1; // Start from the last row
+  while (row >= 0 && viewableBalls[row][column].centerX == 0) {
+    row--; // Move up to the next available row if the current one is
+    // occupied
+  }
+  // row++;
+  // int row = (ball.centerY / 59);
 
-  row++;
   // If we found a valid row, register the ball there
   if (row >= 0) {
     // Set ball's position based on the row and column
