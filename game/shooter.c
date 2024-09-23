@@ -404,5 +404,6 @@ void moveShooter() {
       drawBallsMatrix();
       expiredTime = t + f * msVal / 1000;
     }
+    updatePlayerScoreDisplay(&player); // Redraw the player's score
   }
 }
