@@ -343,6 +343,7 @@ void moveShooter() {
       if (input == 'c') // Continue game
       {
         uart_puts("\nResuming Game\n");
+        drawImage(0, 0, myBackground, 700, 800);
         copyBallsToScreen(); // Redraw the background or game elements
         drawBallsMatrix();   // Redraw any active balls
         drawShooter(BASE_X, BASE_Y, shooter_angle); // Redraw shooter
@@ -357,6 +358,7 @@ void moveShooter() {
       continue; // Skip the rest of the loop if paused
     }
 
+    updatePlayerScoreDisplay(&player); // Redraw the player's score
     // Normal game loop when not paused
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     drawBallsMatrix();
@@ -404,6 +406,5 @@ void moveShooter() {
       drawBallsMatrix();
       expiredTime = t + f * msVal / 1000;
     }
-    updatePlayerScoreDisplay(&player); // Redraw the player's score
   }
 }
