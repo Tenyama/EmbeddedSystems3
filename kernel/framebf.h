@@ -133,4 +133,7 @@ void drawBackgroundPixel(int x, int y);
  */
 void clear_term_Screen();
 
+void draw_string_with_background(int x, int y, const char *str, unsigned int text_color, unsigned int bg_color, int scale);
+
+
 #endif // FRAMEBF_H
