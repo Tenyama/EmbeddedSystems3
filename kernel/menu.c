@@ -182,6 +182,21 @@ void handle_help_command(char command[]) {
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------+\n");
     // Call a function to display the image here
+  } else if (string_compare(command, "play video")) {
+    uart_puts("\n+-----------+----------------------+--------------------------"
+              "--------------------+\n");
+    uart_puts("| Command # | Command Name         | Usage                      "
+              "                  |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------+\n");
+    uart_puts("|           | play video           | Play team video            "
+              "                  |\n");
+    uart_puts(
+        "|           |                      | Example: MyOS> display video"
+        "                 |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------+\n");
+    // Call a function to display the image here
   } else if (string_compare(command, "game")) {
     uart_puts("\n+-----------+----------------------+--------------------------"
               "--------------------------------+\n");
@@ -192,6 +207,21 @@ void handle_help_command(char command[]) {
     uart_puts("|           | game                 | To start playing Dynomite  "
               "                              |\n");
     uart_puts("|           |                      | Example: MyOS> game   "
+              "                                   |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------------------+\n");
+              
+    // Set stopbit logic here
+  } else if (string_compare(command, "help")) {
+    uart_puts("\n+-----------+----------------------+--------------------------"
+              "--------------------------------+\n");
+    uart_puts("| Command # | Command Name         | Usage                      "
+              "                              |\n");
+    uart_puts("+-----------+----------------------+----------------------------"
+              "------------------------------+\n");
+    uart_puts("|           | help                 | To display the acceptable commands table "
+              "                |\n");
+    uart_puts("|           |                      | Example: MyOS> help   "
               "                                   |\n");
     uart_puts("+-----------+----------------------+----------------------------"
               "------------------------------+\n");
