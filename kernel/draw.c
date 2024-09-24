@@ -23,7 +23,6 @@ int set_virtual_offset(unsigned int x_offset, unsigned int y_offset) {
 
   if (mbox_call(ADDR(mBuf), MBOX_CH_PROP) && mBuf[5] == x_offset &&
       mBuf[6] == y_offset) {
-    uart_puts(" Set virtual offset successfully!\n");
     return 1;
   } else {
     uart_puts(" Unable to set virtual offset!\n");
@@ -71,19 +70,32 @@ void draw() {
 
     if (c == 'a') { // move left
       x_offset += 20;
+      if (set_virtual_offset(x_offset, y_offset)) {
+        uart_puts("Set virtual offset successfully!\n");
+      }
     } else if (c == 'd') { // move right
       if (x_offset >= 20)
         x_offset -= 20;
+      if (set_virtual_offset(x_offset, y_offset)) {
+        uart_puts("Set virtual offset successfully!\n");
+      }
     } else if (c == 'w') { // move up
       y_offset += 20;
+      if (set_virtual_offset(x_offset, y_offset)) {
+        uart_puts("Set virtual offset successfully!\n");
+      }
     } else if (c == 's') { // move down
       if (y_offset >= 20)
         y_offset -= 20;
+      if (set_virtual_offset(x_offset, y_offset)) {
+        uart_puts("Set virtual offset successfully!\n");
+      }
     } else if (c == 'q') {
+      uart_puts("\n");
       break;
+    } else {
+      uart_puts("Press 'q' to quit\n");
     }
-
-    set_virtual_offset(x_offset, y_offset);
 
     // adding some delay
     int r = 1000;
@@ -93,5 +105,6 @@ void draw() {
 
     // send back
     uart_sendc(c);
+    uart_puts("  ");
   }
 }

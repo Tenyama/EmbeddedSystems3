@@ -38,5 +38,8 @@ void welcomeGame() {
   if (input == ' ') {
     drawImage(0, 0, myBackground, 700, 800);
     moveShooter();
+  } else {
+    uart_puts("\nPlease come back and play with us!!!\n");
+    clearScreen();
   }
 }
