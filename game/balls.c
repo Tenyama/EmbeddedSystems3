@@ -264,6 +264,14 @@ void handleExplosion(int row, int col) {
   }
 }
 
+void resetViewableBalls() {
+  for (int i = 0; i < ROWS; i++) {
+    for (int j = 0; j < COLS; j++) {
+      viewableBalls[i][j] = resetBall();
+    }
+  }
+}
+
 void registerBall(int end_x, struct Ball ball) {
   // Determine the column based on the ball's X position
   int column = (end_x - 228) / 59;

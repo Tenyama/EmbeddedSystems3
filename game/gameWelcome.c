@@ -3,9 +3,9 @@
 #include "../kernel/menu.h"
 #include "../uart/uart0.h"
 #include "./background.h"
+#include "./balls.h"
 #include "./gameIntro.h"
 #include "./shooter.h"
-#include "./balls.h"
 
 void displayGameIntro(int x, int y) {
   for (int h = 0; h < 800; h++) {
@@ -25,6 +25,7 @@ void displayGameIntro(int x, int y) {
 void welcomeGame() {
   Player player;
   initPlayer(&player);
+  clearScreen();
   displayGameIntro(0, 0);
   draw_string_with_background(130, 640, "Hit space to start the game!",
                               0xFFFF69B4, 0xFF000000, 2);

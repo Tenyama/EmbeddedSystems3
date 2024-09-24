@@ -299,8 +299,8 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle,
 
 int isPaused = 0; // 0 = game running, 1 = game paused
 
-
 void moveShooter() {
+  resetViewableBalls();
   initializeBalls();
   copyBallsToScreen();
   drawBallsMatrix();
@@ -336,16 +336,6 @@ void moveShooter() {
       break; // Exit the game loop when the game is over
     }
     unsigned int msVal = ballTime(); // Initial speed (7 seconds)
-    // Manually check the player's level and adjust msVal based on level
-    if (player.score >= 50 && player.level == 1) {
-      player.level = 2;
-      msVal = 2000; // Level 2 - 5 seconds
-      uart_puts("Level Up to Level 2! Speed increased.\n");
-    } else if (player.score >= 100 && player.level == 2) {
-      player.level = 3;
-      msVal = 1000; // Level 3 - 2 seconds
-      uart_puts("Level Up to Level 3! Speed increased further.\n");
-    }
 
     // Check for pause state first
     if (isPaused) {
@@ -360,7 +350,6 @@ void moveShooter() {
       } else if (input == 'q') {
         uart_puts("\nQuitting Game\n");
         clearScreen();
-
         break; // Exit the game loop
       }
       continue; // Skip the rest of the loop if paused
@@ -389,7 +378,8 @@ void moveShooter() {
         // After shooting the ball, reset it for the next shot
         shooterBall.centerX = BASE_X;
         shooterBall.centerY = BASE_Y;
-        shooterBall.color = generateRandomColor(); // Generate a new random color for the next ball
+        shooterBall.color = generateRandomColor(); // Generate a new random
+                                                   // color for the next ball
         ballReady = 0;
         drawBallsMatrix();
         drawShooter(BASE_X, BASE_Y, shooter_angle);
@@ -399,10 +389,14 @@ void moveShooter() {
         break; // Exit the game loop
       } else if (input == 'p') {
         uart_puts("\nGame Paused\n");
+        clearScreen();
         drawImage(0, 0, myPause, 700, 800); // Draw the pause image
-        draw_string_with_background(130, 640, "Enter 'c' to continue the game!", 0xFFFF69B4, 0xFF000000, 2);
-        draw_string_with_background(130, 680, "Enter 'q' to quite the game!", 0xFFFF69B4, 0xFF000000, 2);
-        draw_string_with_background(130, 720, "Enter 'r' to reset the game!", 0xFFFF69B4, 0xFF000000, 2);
+        draw_string_with_background(130, 640, "Enter 'c' to continue the game!",
+                                    0xFFFF69B4, 0xFF000000, 2);
+        draw_string_with_background(130, 680, "Enter 'q' to quite the game!",
+                                    0xFFFF69B4, 0xFF000000, 2);
+        draw_string_with_background(130, 720, "Enter 'r' to reset the game!",
+                                    0xFFFF69B4, 0xFF000000, 2);
         isPaused = 1; // Set the game to paused
       }
     } else {
