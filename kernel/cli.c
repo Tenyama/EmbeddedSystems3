@@ -194,12 +194,16 @@ void cli() {
   } else if (string_compare(cli_buffer, "checkstopbits")) {
     check_stopbits_uart1(); // Check the current stopbits setting
   } else if (string_compare(cli_buffer, "display image")) {
+    clearScreen();
     uart_puts("PRESS WASD TO OFFSET IMAGE\n");
     uart_puts("PRESS 'q' TO QUIT\n");
     draw(); // Display an image
     framebf_init();
+    clearScreen();
   } else if (string_compare(cli_buffer, "play video")) {
+    clearScreen();
     playVideo(); // Placeholder for playing video
+    clearScreen();
   } else if (string_compare(cli_buffer, "clear")) {
     clear_term_Screen(); // Clear the terminal screen
   } else if (string_compare(cli_buffer, "clear QEMU")) {
