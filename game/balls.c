@@ -14,6 +14,8 @@ typedef unsigned char uint8_t;
 int dx[] = {-1, 1, 0, 0};
 int dy[] = {0, 0, -1, 1};
 
+Player player = {0, 1};
+
 // Forward declaration of generateRandomColor()
 unsigned int
 generateRandomColor() { // Declare the function prototype before its usage
