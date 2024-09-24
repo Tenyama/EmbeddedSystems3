@@ -19,9 +19,9 @@
 
 // List of valid commands for the CLI
 static char *command_list[] = {
-    "help", "showinfo", "baudrate", "stopbits", "clear", "clear QEMU", "display image", 
-    "game", "exit", "play video", "checkbaudrate", "checkstopbits"
-};
+    "help",  "showinfo",   "baudrate",      "stopbits",
+    "clear", "clear QEMU", "display image", "game",
+    "exit",  "play video", "checkbaudrate", "checkstopbits"};
 
 // CLI function with command history, backspace, delete, and tab-completion
 void cli() {

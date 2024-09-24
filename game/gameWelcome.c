@@ -1,5 +1,6 @@
 #include "../kernel/draw.h"
 #include "../kernel/framebf.h"
+#include "../kernel/menu.h"
 #include "../uart/uart0.h"
 #include "./background.h"
 #include "./gameIntro.h"
@@ -25,9 +26,12 @@ void welcomeGame() {
   Player player;
   initPlayer(&player);
   displayGameIntro(0, 0);
-  draw_string_with_background(130, 640, "Hit space to start the game!", 0xFFFF69B4, 0xFF000000, 2);
-  draw_string_with_background(130, 680, "Enter 'q' to quite the game!", 0xFFFF69B4, 0xFF000000, 2);
-  draw_string_with_background(130, 720, "Enter 'p' to pause the game!", 0xFFFF69B4, 0xFF000000, 2);
+  draw_string_with_background(130, 640, "Hit space to start the game!",
+                              0xFFFF69B4, 0xFF000000, 2);
+  draw_string_with_background(130, 680, "Enter 'q' to quite the game!",
+                              0xFFFF69B4, 0xFF000000, 2);
+  draw_string_with_background(130, 720, "Enter 'p' to pause the game!",
+                              0xFFFF69B4, 0xFF000000, 2);
   uart_puts("Press space to confirm");
   char input = uart_getc();
   if (input == ' ') {
