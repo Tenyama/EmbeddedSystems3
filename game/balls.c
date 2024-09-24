@@ -132,6 +132,15 @@ int getMaxRow(int currentX) {
   }
   return 1;
 }
+int getMaxRowGame() {
+  for (int row = ROWS - 1; row > 0; row--) {
+    for (int col = 0; col < COLS; col++) {
+      if (viewableBalls[row][col].centerX != 0)
+        return row + 1;
+    }
+  }
+  return 1;
+}
 
 int checkEmptySpot(int x, int y) {
 
@@ -252,7 +261,7 @@ void registerBall(int end_x, struct Ball ball) {
   }
 
   // Calculate the row based on the end_y position
-  int row = (ball.centerY - 29) / 59;
+  int row = (ball.centerY) / 59;
   if (row < 0) {
     row = 0;
   } else if (row >= ROWS) {

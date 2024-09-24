@@ -4,10 +4,10 @@
 #include "../uart/uart1.h"
 #include "./background.h"
 #include "./balls.h"
+#include "./gameover.h"
 #include "./interrupt.h"
 #include "./pause.h"
 #include "./player.h"
-#include "./gameover.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
@@ -206,7 +206,19 @@ void move_left() {
     shooter_angle = MAX_ANGLE; // Prevent going above maximum
   }
 }
+// Function to check if the game is over (if any ball reaches the top row)
+int isGameOver() {
+  for (int col = 0; col < COLS; col++) {
+    if (getMaxRowGame() == 12) {
+      drawImage(0, 0, myOver, 700, 800);
+      draw_string(130, 660, "Enter 'r' to reset the game!", 0xFFFF69B4, 2);
+      draw_string(130, 700, "Enter 'q' to quite the game!", 0xFFFF69B4, 2);
 
+      return 1; // Game over condition met
+    }
+  }
+  return 0; // No ball has reached the top row yet
+}
 // Function to move the shooter to the right
 void move_right() {
   if (shooter_angle - ANGLE_STEP >= MIN_ANGLE) {
@@ -308,12 +320,11 @@ void moveShooter() {
     char input = uart_getc_game(); // Read input outside of the timing condition
 
     // Check if the game is over after every ball placement
-    if (isGameOver())
-    {
+    if (isGameOver()) {
       uart_puts("\nGAME OVER! No more space!\n");
       break; // Exit the game loop when the game is over
     }
-    
+
     // Check for pause state first
     if (isPaused) {
       if (input == 'c') {
@@ -372,7 +383,7 @@ void moveShooter() {
         draw_string(130, 680, "Enter 'q' to quite the game!", 0xFFFF69B4, 2);
         draw_string(130, 720, "Enter 'r' to reset the game!", 0xFFFF69B4, 2);
 
-        isPaused = 1;                       // Set the game to paused
+        isPaused = 1; // Set the game to paused
       }
     } else {
       // copyBallsToScreen();
