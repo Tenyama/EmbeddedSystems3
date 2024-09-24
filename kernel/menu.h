@@ -26,4 +26,5 @@ void handle_baudrate_command_uart1(char *command);
 void handle_stopbits_command_uart1(char *command);
 void int_to_str(int value, char *str);
 void clearScreen();
+void clear_line();
 #endif // MENU_H
