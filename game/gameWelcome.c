@@ -3,6 +3,7 @@
 #include "../kernel/menu.h"
 #include "../uart/uart0.h"
 #include "./background.h"
+#include "./balls.h"
 #include "./gameIntro.h"
 #include "./shooter.h"
 
@@ -22,6 +23,8 @@ void displayGameIntro(int x, int y) {
 }
 
 void welcomeGame() {
+  Player player;
+  initPlayer(&player);
   clearScreen();
   displayGameIntro(0, 0);
   draw_string_with_background(130, 640, "Hit space to start the game!",

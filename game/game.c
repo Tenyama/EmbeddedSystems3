@@ -2,7 +2,6 @@
 #include "../uart/uart1.h"
 #include "./background.h"
 #include "./balls.h"
-#include "./player.h"
 #include "./shooter.h"
 #include "gameWelcome.h"
 

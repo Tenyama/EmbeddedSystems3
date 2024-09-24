@@ -1,11 +1,15 @@
 #include "./balls.h"
 #include "../kernel/framebf.h"
+#include "../kernel/mbox.h" // For mailbox handling
+#include "../kernel/menu.h"
 #include "../uart/uart1.h"
 #include "./ballExplode.h"
 #include "./interrupt.h"
 
+#define SCORE_REGION_WIDTH 228
+#define SCOREBOARD_BORDER_COLOR 0xFFEA7F7D // Border color for the scoreboard
+#define SCOREBOARD_BACKGROUND_COLOR 0xFF999999
 typedef unsigned char uint8_t;
-
 // Directions: left, right, up, down, diagonals
 int dx[] = {-1, 1, 0, 0};
 int dy[] = {0, 0, -1, 1};
@@ -86,27 +90,27 @@ struct Ball resetBall() {
   return newBall;
 }
 void shiftBallsUp(struct Ball matrix[ROWS][COLS]) {
-    int startY = 0;
-    for (int i = ROWS - 1; i > 0; i--) {
-        startY = i * 59 + 29;
-        for (int j = 0; j < COLS; j++) {
-            if (matrix[i - 1][j].centerX != 0 && matrix[i - 1][j].centerY != 0) {
-                // Move the ball from the row below if it's valid
-                matrix[i][j] = matrix[i - 1][j];
-                matrix[i][j].centerY = startY;
-            } else {
-                // If the ball below is missing, clear the current one
-                eraseBall(matrix[i][j]);
-                matrix[i][j] = resetBall();
-            }
-        }
-    }
-
-    // Clear the topmost row after shifting
+  int startY = 0;
+  for (int i = ROWS - 1; i > 0; i--) {
+    startY = i * 59 + 29;
     for (int j = 0; j < COLS; j++) {
-        eraseBall(matrix[0][j]);
-        matrix[0][j] = resetBall();
+      if (matrix[i - 1][j].centerX != 0 && matrix[i - 1][j].centerY != 0) {
+        // Move the ball from the row below if it's valid
+        matrix[i][j] = matrix[i - 1][j];
+        matrix[i][j].centerY = startY;
+      } else {
+        // If the ball below is missing, clear the current one
+        eraseBall(matrix[i][j]);
+        matrix[i][j] = resetBall();
+      }
     }
+  }
+
+  // Clear the topmost row after shifting
+  for (int j = 0; j < COLS; j++) {
+    eraseBall(matrix[0][j]);
+    matrix[0][j] = resetBall();
+  }
 }
 
 void copyBallsToScreen() {
@@ -211,7 +215,7 @@ int check_explosion(int x, int y) {
   resetVisited(); // Clear the visited array before each check
   int connected_count = depthFirstSearch(x, y, color);
   if (connected_count >= 3) {
-    return 1;
+    return connected_count;
   }
   return 0;
 }
@@ -241,17 +245,32 @@ void clearConnectedBalls(int row, int col, int color) {
 void handleExplosion(int row, int col) {
   unsigned int color =
       viewableBalls[row][col].color; // Store the color before clearing
-
+  int ballsExploded = check_explosion(row, col);
   // Check if the placed ball can cause an explosion
-  if (check_explosion(row, col) == 1) {
+  if (ballsExploded >= 3) {
     // Animate explosion at the coordinates of the center ball
     drawExplode(viewableBalls[row][col].centerX,
                 viewableBalls[row][col].centerY);
     wait_msec(100);
     clearExplosion(viewableBalls[row][col].centerX,
                    viewableBalls[row][col].centerY);
+
+    increaseScore(&player, ballsExploded * 10);
+    updatePlayerScoreDisplay(&player);
     // Clear the balls involved in the explosion by setting their color to 0
     clearConnectedBalls(row, col, color); // Pass the stored color
+    // Redraw the screen to reflect the cleared balls
+    drawBallsMatrix();
+    updatePlayerScoreDisplay(&player);
+    // displayScoreRegion();
+  }
+}
+
+void resetViewableBalls() {
+  for (int i = 0; i < ROWS; i++) {
+    for (int j = 0; j < COLS; j++) {
+      viewableBalls[i][j] = resetBall();
+    }
   }
 }
 
@@ -289,4 +308,104 @@ void registerBall(int end_x, struct Ball ball) {
   viewableBalls[row][column] = ball;
 
   handleExplosion(row, column);
+  drawBallsMatrix();
+}
+
+// init players and functions to track score and levels
+
+// Function to initialize a player with a starting score and level
+void initPlayer(Player *player) {
+  player->score = 0; // Start the player with a score of 0
+  player->level = 1; // Start the player at level 1
+}
+
+// Function to update the player's score and level display
+void updatePlayerScoreDisplay(Player *player) {
+  // Initialize the frame buffer (if not already done)
+
+  int height = mBuf[6]; // Get the actual height of the screen
+
+  // Clear the entire scoreboard region on the left side by redrawing the
+  // background
+  drawRectARGB32(0, 0, SCORE_REGION_WIDTH - 1, height - 1,
+                 SCOREBOARD_BACKGROUND_COLOR, 1);
+  drawRectARGB32(0, 0, SCORE_REGION_WIDTH - 1, height - 1,
+                 SCOREBOARD_BORDER_COLOR, 0);
+
+  // Coordinates for text
+  int x = 20;
+  int y = 50;
+  unsigned int text_color = 0xFFFFFFFF; // White color for the text
+  int scale = 2;                        // Text size
+
+  // Redraw "PLAYER SCORE:" and "PLAYER LEVEL:" to refresh the background and
+  // text
+  draw_string(x, y, "PLAYER SCORE:", text_color, scale);
+
+  // Convert the player's score to a string
+  char score_str[12];
+  int_to_str(player->score, score_str); // Manually convert score to string
+  draw_string(x, y + 40, score_str, text_color, scale);
+
+  // Display the player's level below the score
+  draw_string(x, y + 80, "PLAYER LEVEL:", text_color, scale);
+  char level_str[12];
+  int_to_str(player->level, level_str); // Manually convert level to string
+  draw_string(x, y + 120, level_str, text_color, scale);
+}
+
+// Function to check if the player has leveled up
+void checkLevelUp(Player *player) {
+
+  if (player->score >= 0 && player->level == 0) {
+    player->level = 1;
+  } else if (player->score >= 150 && player->level == 1) {
+    player->level = 2; // Increase player level to 2
+    uart_puts("Congratulations! You've leveled up to Level 2!\n");
+  } else if (player->score >= 300 && player->level == 2) {
+    player->level = 3; // Increase player level to 3
+    uart_puts("Congratulations! You've leveled up to Level 3!\n");
+  }
+}
+
+// Function to increase the player's score by a certain amount
+void increaseScore(Player *player, int amount) {
+  player->score += amount;
+  uart_puts("Score updated: ");
+  uart_dec(player->score);
+  uart_puts("\n");
+  // Check for level up
+  checkLevelUp(player);
+
+  // Update the display after score changes
+  updatePlayerScoreDisplay(player);
+}
+
+// Function to display the scoreboard region on the left-hand side
+void displayScoreRegion() {
+  // Initialize the frame buffer
+
+  int height = mBuf[6]; // Get the actual height of the screen
+
+  // Draw the background and border for the scoreboard region
+  drawRectARGB32(0, 0, SCORE_REGION_WIDTH - 1, height - 1,
+                 SCOREBOARD_BACKGROUND_COLOR, 1);
+  drawRectARGB32(0, 0, SCORE_REGION_WIDTH - 1, height - 1,
+                 SCOREBOARD_BORDER_COLOR, 0);
+
+  // Display the "PLAYER SCORE:" and "PLAYER LEVEL:" labels
+  draw_string(20, 50, "PLAYER SCORE:", 0xFFFFFFFF, 2);
+  draw_string(20, 130, "PLAYER LEVEL:", 0xFFFFFFFF, 2);
+}
+
+int ballTime() {
+  switch (player.level) {
+  case 1:
+    return 7000;
+  case 2:
+    return 5000;
+  case 3:
+    return 2000;
+  }
+  return 5000;
 }

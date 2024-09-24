@@ -507,3 +507,12 @@ void print_logo() {
       "+---------------------------+----------------------------+\n\n\n\n");
   draw_string(80, 100, "HELLO", 0xFFFFFFFF, 5);
 }
+
+void clear_line() {
+    // Send a carriage return to move to the start of the line
+    uart_puts("\r");
+    // Print spaces to overwrite the existing content on the line
+    uart_puts("                                                                               ");
+    // Send another carriage return to bring the cursor back to the start
+    uart_puts("\r");
+}
