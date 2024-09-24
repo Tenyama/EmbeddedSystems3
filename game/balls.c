@@ -86,22 +86,27 @@ struct Ball resetBall() {
   return newBall;
 }
 void shiftBallsUp(struct Ball matrix[ROWS][COLS]) {
-  int startY = 0;
-  for (int i = ROWS - 1; i > 0; i--) {
-    startY = i * 59 + 29;
-    for (int j = 0; j < COLS; j++) {
-      matrix[i][j] = matrix[i - 1][j];
-      if (matrix[i - 1][j].centerX == 0 && matrix[i - 1][j].centerY == 0) {
-        matrix[i][j] = resetBall();
-      } else {
-        matrix[i][j].centerY = startY;
-      }
+    int startY = 0;
+    for (int i = ROWS - 1; i > 0; i--) {
+        startY = i * 59 + 29;
+        for (int j = 0; j < COLS; j++) {
+            if (matrix[i - 1][j].centerX != 0 && matrix[i - 1][j].centerY != 0) {
+                // Move the ball from the row below if it's valid
+                matrix[i][j] = matrix[i - 1][j];
+                matrix[i][j].centerY = startY;
+            } else {
+                // If the ball below is missing, clear the current one
+                eraseBall(matrix[i][j]);
+                matrix[i][j] = resetBall();
+            }
+        }
     }
-  }
-  for (int j = 0; j < COLS; j++) {
-    eraseBall(viewableBalls[0][j]);
-    viewableBalls[0][j] = resetBall(); // Set last row to 0 (or any reset value)
-  }
+
+    // Clear the topmost row after shifting
+    for (int j = 0; j < COLS; j++) {
+        eraseBall(matrix[0][j]);
+        matrix[0][j] = resetBall();
+    }
 }
 
 void copyBallsToScreen() {
@@ -247,8 +252,6 @@ void handleExplosion(int row, int col) {
                    viewableBalls[row][col].centerY);
     // Clear the balls involved in the explosion by setting their color to 0
     clearConnectedBalls(row, col, color); // Pass the stored color
-    // Redraw the screen to reflect the cleared balls
-    drawBallsMatrix();
   }
 }
 
@@ -286,5 +289,4 @@ void registerBall(int end_x, struct Ball ball) {
   viewableBalls[row][column] = ball;
 
   handleExplosion(row, column);
-  drawBallsMatrix();
 }

@@ -184,7 +184,7 @@ void cli() {
     draw();
   } else if (string_compare(cli_buffer, "play video")) {
     clearScreen();
-    playVideo();
+    // playVideo();
   } else if (string_compare(cli_buffer, "clear")) {
     clear_term_Screen();
   } else if (string_compare(cli_buffer, "clear QEMU")) {
