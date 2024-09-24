@@ -7,6 +7,7 @@
 #include "./interrupt.h"
 #include "./pause.h"
 #include "./player.h"
+#include "./gameover.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
@@ -306,6 +307,13 @@ void moveShooter() {
   while (1) {
     char input = uart_getc_game(); // Read input outside of the timing condition
 
+    // Check if the game is over after every ball placement
+    if (isGameOver())
+    {
+      uart_puts("\nGAME OVER! No more space!\n");
+      break; // Exit the game loop when the game is over
+    }
+    
     // Check for pause state first
     if (isPaused) {
       if (input == 'c') {
@@ -360,6 +368,10 @@ void moveShooter() {
       } else if (input == 'p') {
         uart_puts("\nGame Paused\n");
         drawImage(0, 0, myPause, 700, 800); // Draw the pause image
+        draw_string(130, 640, "Enter 'c' to continue the game!", 0xFFFF69B4, 2);
+        draw_string(130, 680, "Enter 'q' to quite the game!", 0xFFFF69B4, 2);
+        draw_string(130, 720, "Enter 'r' to reset the game!", 0xFFFF69B4, 2);
+
         isPaused = 1;                       // Set the game to paused
       }
     } else {
