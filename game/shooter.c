@@ -312,15 +312,13 @@ void moveShooter() {
   struct Ball shooterBall = {BASE_X, BASE_Y, 29, generateRandomColor()};
   int ballReady = 1;
 
-  // Player player;
-  // initPlayer(&player); // Initialize player's score and level
-
   static unsigned long expiredTime = 0; // declare static to keep value
   register unsigned long f, t;
   asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
   asm volatile("mrs %0, cntpct_el0" : "=r"(t));
   expiredTime = t + f * 7000 / 1000;
 
+  initPlayer(&player);
   uart_puts("\nPress A to move shooter to left: ");
   uart_puts("\nPress D to move shooter to right: ");
   drawShooter(BASE_X, BASE_Y, shooter_angle); // Draw initial shooter
@@ -381,7 +379,7 @@ void moveShooter() {
         shooterBall.color = generateRandomColor(); // Generate a new random
                                                    // color for the next ball
         ballReady = 0;
-        drawBallsMatrix();
+        // drawBallsMatrix();
         drawShooter(BASE_X, BASE_Y, shooter_angle);
       } else if (input == 'q') {
         uart_puts("\nQuitting Game\n");
@@ -401,7 +399,6 @@ void moveShooter() {
       }
     } else {
       copyBallsToScreen();
-      drawBallsMatrix();
       expiredTime = t + f * msVal / 1000;
     }
   }

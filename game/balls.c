@@ -8,13 +8,8 @@
 
 #define SCORE_REGION_WIDTH 228
 #define SCOREBOARD_BORDER_COLOR 0xFFEA7F7D // Border color for the scoreboard
-#define SCOREBOARD_BACKGROUND_COLOR                                            \
-  0xFF999999               // Background color for the scoreboard
-#define LEVEL_UP_SCORE 100 // Score required to level up
-
+#define SCOREBOARD_BACKGROUND_COLOR 0xFF999999
 typedef unsigned char uint8_t;
-// Player player;
-// initPlayer(&player);
 // Directions: left, right, up, down, diagonals
 int dx[] = {-1, 1, 0, 0};
 int dy[] = {0, 0, -1, 1};
@@ -46,8 +41,7 @@ void drawCircle(int centerX, int centerY, int radius, unsigned int color) {
     for (int x = -radius; x <= radius; x++) {
       if (x * x + y * y <=
           radius * radius) { // Circle equation: (x^2 + y^2 <= r^2)
-        drawPixelARGB32(centerX + x, centerY + y,
-                        color); // Draw pixel at (centerX + x, centerY + y)
+        drawPixelARGB32(centerX + x, centerY + y, color);
       }
     }
   }
@@ -100,13 +94,22 @@ void shiftBallsUp(struct Ball matrix[ROWS][COLS]) {
   for (int i = ROWS - 1; i > 0; i--) {
     startY = i * 59 + 29;
     for (int j = 0; j < COLS; j++) {
-      matrix[i][j] = matrix[i - 1][j];
-      matrix[i][j].centerY = startY; // Set vertical position based on the
-                                     // row
+      if (matrix[i - 1][j].centerX != 0 && matrix[i - 1][j].centerY != 0) {
+        // Move the ball from the row below if it's valid
+        matrix[i][j] = matrix[i - 1][j];
+        matrix[i][j].centerY = startY;
+      } else {
+        // If the ball below is missing, clear the current one
+        eraseBall(matrix[i][j]);
+        matrix[i][j] = resetBall();
+      }
     }
   }
+
+  // Clear the topmost row after shifting
   for (int j = 0; j < COLS; j++) {
-    viewableBalls[0][j] = resetBall(); // Set last row to 0 (or any reset value)
+    eraseBall(matrix[0][j]);
+    matrix[0][j] = resetBall();
   }
 }
 
@@ -152,7 +155,6 @@ int getMaxRowGame() {
 }
 
 int checkEmptySpot(int x, int y) {
-
   // Determine the column based on the ball's X position
   int column = (x - 228) / 59;
   if (column > 7) {
