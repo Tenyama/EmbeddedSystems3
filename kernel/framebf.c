@@ -337,6 +337,23 @@ void drawImageVideo(int start_x, int start_y, const unsigned int data[],
   }
 }
 
+void draw_string_with_background(int x, int y, const char *str, unsigned int text_color, unsigned int bg_color, int scale) {
+    // Calculate the width and height of the background
+    int text_length = 0;
+    const char *temp = str;
+    while (*temp++) {
+        text_length++;
+    }
+    int bg_width = text_length * 8 * scale; // Each character is 8 pixels wide
+    int bg_height = 14 * scale; // Each character is 8 pixels tall
+
+    // Draw a background rectangle behind the string
+    drawRectARGB32(x, y, x + bg_width, y + bg_height, bg_color, 1);
+
+    // Draw the string on top of the background
+    draw_string(x, y, str, text_color, scale);
+}
+
 void clear_term_Screen() {
     // Send ANSI escape codes to clear the terminal and move the cursor to the top-left
     uart_puts("\x1b[2J\x1b[H");
