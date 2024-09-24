@@ -48,7 +48,8 @@ void initPlayer(Player *player);                // Initialize a player
 void increaseScore(Player *player, int amount); // Increase the player's score
 void decreaseScore(Player *player, int amount); // Decrease the player's score
 void updatePlayerScoreDisplay(Player *player);  // Update the player's score display
-void displayScoreRegion();                      // Display the scoreboard region
+void displayScoreRegion();     
+int ballTime();                 // Display the scoreboard region
 #endif // BALLS_H
 
 // fromShooter

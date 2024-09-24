@@ -7,7 +7,7 @@
 #include "./gameover.h"
 #include "./interrupt.h"
 #include "./pause.h"
-#include "./player.h"
+// #include "./player.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
@@ -217,7 +217,9 @@ void move_left() {
 // Function to check if the game is over (if any ball reaches the top row)
 int isGameOver() {
   for (int col = 0; col < COLS; col++) {
-    if (rowsOnScreen == 12) {
+    if (getMaxRowGame() == 13) {
+      wait_msec(500);
+      clearScreen();
       drawImage(0, 0, myOver, 700, 800);
       draw_string_with_background(130, 660, "Enter 'r' to reset the game!",
                                   0xFFFF69B4, 0xFF000000, 2);
@@ -296,14 +298,9 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle,
 }
 
 int isPaused = 0; // 0 = game running, 1 = game paused
-void moveShooter() {
-  unsigned int msVal = 7000; // Initial speed (7 seconds)
-  static unsigned long expiredTime = 0; // declare static to keep value
-  register unsigned long f, t;
-  asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
-  asm volatile("mrs %0, cntpct_el0" : "=r"(t));
-  expiredTime = t + f * msVal / 1000;
 
+
+void moveShooter() {
   initializeBalls();
   copyBallsToScreen();
   drawBallsMatrix();
@@ -315,8 +312,14 @@ void moveShooter() {
   struct Ball shooterBall = {BASE_X, BASE_Y, 29, generateRandomColor()};
   int ballReady = 1;
 
-  Player player;
-  initPlayer(&player); // Initialize player's score and level
+  // Player player;
+  // initPlayer(&player); // Initialize player's score and level
+
+  static unsigned long expiredTime = 0; // declare static to keep value
+  register unsigned long f, t;
+  asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
+  asm volatile("mrs %0, cntpct_el0" : "=r"(t));
+  expiredTime = t + f * 7000 / 1000;
 
   uart_puts("\nPress A to move shooter to left: ");
   uart_puts("\nPress D to move shooter to right: ");
@@ -332,7 +335,7 @@ void moveShooter() {
       uart_puts("\nGAME OVER! No more space!\n");
       break; // Exit the game loop when the game is over
     }
-
+    unsigned int msVal = ballTime(); // Initial speed (7 seconds)
     // Manually check the player's level and adjust msVal based on level
     if (player.score >= 50 && player.level == 1) {
       player.level = 2;
