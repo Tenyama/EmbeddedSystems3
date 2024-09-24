@@ -37,8 +37,7 @@ void drawCircle(int centerX, int centerY, int radius, unsigned int color) {
     for (int x = -radius; x <= radius; x++) {
       if (x * x + y * y <=
           radius * radius) { // Circle equation: (x^2 + y^2 <= r^2)
-        drawPixelARGB32(centerX + x, centerY + y,
-                        color); // Draw pixel at (centerX + x, centerY + y)
+        drawPixelARGB32(centerX + x, centerY + y, color);
       }
     }
   }
@@ -87,18 +86,27 @@ struct Ball resetBall() {
   return newBall;
 }
 void shiftBallsUp(struct Ball matrix[ROWS][COLS]) {
-  int startY = 0;
-  for (int i = ROWS - 1; i > 0; i--) {
-    startY = i * 59 + 29;
-    for (int j = 0; j < COLS; j++) {
-      matrix[i][j] = matrix[i - 1][j];
-      matrix[i][j].centerY = startY; // Set vertical position based on the
-                                     // row
+    int startY = 0;
+    for (int i = ROWS - 1; i > 0; i--) {
+        startY = i * 59 + 29;
+        for (int j = 0; j < COLS; j++) {
+            if (matrix[i - 1][j].centerX != 0 && matrix[i - 1][j].centerY != 0) {
+                // Move the ball from the row below if it's valid
+                matrix[i][j] = matrix[i - 1][j];
+                matrix[i][j].centerY = startY;
+            } else {
+                // If the ball below is missing, clear the current one
+                eraseBall(matrix[i][j]);
+                matrix[i][j] = resetBall();
+            }
+        }
     }
-  }
-  for (int j = 0; j < COLS; j++) {
-    viewableBalls[0][j] = resetBall(); // Set last row to 0 (or any reset value)
-  }
+
+    // Clear the topmost row after shifting
+    for (int j = 0; j < COLS; j++) {
+        eraseBall(matrix[0][j]);
+        matrix[0][j] = resetBall();
+    }
 }
 
 void copyBallsToScreen() {
@@ -143,7 +151,6 @@ int getMaxRowGame() {
 }
 
 int checkEmptySpot(int x, int y) {
-
   // Determine the column based on the ball's X position
   int column = (x - 228) / 59;
   if (column > 7) {
@@ -245,8 +252,6 @@ void handleExplosion(int row, int col) {
                    viewableBalls[row][col].centerY);
     // Clear the balls involved in the explosion by setting their color to 0
     clearConnectedBalls(row, col, color); // Pass the stored color
-    // Redraw the screen to reflect the cleared balls
-    drawBallsMatrix();
   }
 }
 
@@ -284,5 +289,4 @@ void registerBall(int end_x, struct Ball ball) {
   viewableBalls[row][column] = ball;
 
   handleExplosion(row, column);
-  drawBallsMatrix();
 }
