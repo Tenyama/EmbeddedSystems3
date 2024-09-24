@@ -199,9 +199,7 @@ void cli() {
     draw(); // Display an image
     framebf_init();
   } else if (string_compare(cli_buffer, "play video")) {
-    uart_puts("PRESS 'q' TO QUIT\n");
-    clearScreen();
-    playVideo(); // Placeholder for playing video (unimplemented)
+    playVideo(); // Placeholder for playing video
   } else if (string_compare(cli_buffer, "clear")) {
     clear_term_Screen(); // Clear the terminal screen
   } else if (string_compare(cli_buffer, "clear QEMU")) {
