@@ -1,5 +1,6 @@
 #include "../kernel/draw.h"
 #include "../kernel/framebf.h"
+#include "../kernel/menu.h"
 #include "../uart/uart0.h"
 #include "../uart/uart1.h"
 #include "./background.h"
@@ -218,8 +219,9 @@ void move_left() {
 int isGameOver() {
   for (int col = 0; col < COLS; col++) {
     if (getMaxRowGame() == 12) {
+      clearScreen();
       drawImage(0, 0, myOver, 700, 800);
-      draw_string_with_background(130, 660, "Enter 'r' to reset the game!",
+      draw_string_with_background(130, 660, "Enter \"game\" to play again",
                                   0xFFFF69B4, 0xFF000000, 2);
       draw_string_with_background(130, 700, "Enter 'q' to quite the game!",
                                   0xFFFF69B4, 0xFF000000, 2);
@@ -400,8 +402,8 @@ void moveShooter() {
         isPaused = 1; // Set the game to paused
       }
     } else {
-      // copyBallsToScreen();
-      // drawBallsMatrix();
+      copyBallsToScreen();
+      drawBallsMatrix();
       expiredTime = t + f * msVal / 1000;
     }
   }
