@@ -32,6 +32,8 @@ void handleExplosion(int row, int col);
 int check_explosion(int x, int y);
 void registerBall(int end_x, struct Ball ball);
 int getMaxRow(int currentX);
+int getMaxRowGame();
+int checkEmptySpot(int x, int y);
 
 //Define the Player structure
 typedef struct {
