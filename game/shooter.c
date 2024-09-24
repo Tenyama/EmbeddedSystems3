@@ -354,7 +354,7 @@ void moveShooter() {
       continue; // Skip the rest of the loop if paused
     }
 
-    //   // Redraw the player's score
+    // Redraw the player's score
     // Normal game loop when not paused
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     drawBallsMatrix();
@@ -382,7 +382,7 @@ void moveShooter() {
         shooterBall.color = generateRandomColor(); // Generate a new random
                                                    // color for the next ball
         ballReady = 0;
-        drawBallsMatrix();
+        // drawBallsMatrix();
         drawShooter(BASE_X, BASE_Y, shooter_angle);
         updatePlayerScoreDisplay(
             &player); // Only update the score if the game is not paused
@@ -403,7 +403,6 @@ void moveShooter() {
       }
     } else {
       copyBallsToScreen();
-      drawBallsMatrix();
       expiredTime = t + f * msVal / 1000;
     }
   }

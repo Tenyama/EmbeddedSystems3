@@ -37,8 +37,7 @@ void drawCircle(int centerX, int centerY, int radius, unsigned int color) {
     for (int x = -radius; x <= radius; x++) {
       if (x * x + y * y <=
           radius * radius) { // Circle equation: (x^2 + y^2 <= r^2)
-        drawPixelARGB32(centerX + x, centerY + y,
-                        color); // Draw pixel at (centerX + x, centerY + y)
+        drawPixelARGB32(centerX + x, centerY + y, color);
       }
     }
   }
@@ -92,11 +91,15 @@ void shiftBallsUp(struct Ball matrix[ROWS][COLS]) {
     startY = i * 59 + 29;
     for (int j = 0; j < COLS; j++) {
       matrix[i][j] = matrix[i - 1][j];
-      matrix[i][j].centerY = startY; // Set vertical position based on the
-                                     // row
+      if (matrix[i - 1][j].centerX == 0 && matrix[i - 1][j].centerY == 0) {
+        matrix[i][j] = resetBall();
+      } else {
+        matrix[i][j].centerY = startY;
+      }
     }
   }
   for (int j = 0; j < COLS; j++) {
+    eraseBall(viewableBalls[0][j]);
     viewableBalls[0][j] = resetBall(); // Set last row to 0 (or any reset value)
   }
 }
@@ -143,7 +146,6 @@ int getMaxRowGame() {
 }
 
 int checkEmptySpot(int x, int y) {
-
   // Determine the column based on the ball's X position
   int column = (x - 228) / 59;
   if (column > 7) {
