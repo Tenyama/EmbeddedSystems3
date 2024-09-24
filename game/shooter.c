@@ -7,6 +7,7 @@
 #include "./interrupt.h"
 #include "./pause.h"
 #include "./player.h"
+#include "./gameover.h"
 
 #define MIN_ANGLE 0
 #define MAX_ANGLE 180
@@ -305,6 +306,18 @@ void switchBallDirectionAtBounce(struct Ball *ball) {
   // You can add further conditions or fine-tune movement behavior here if
   // needed
 }
+
+// Function to check if the game is over (if any ball reaches the top row)
+int isGameOver() {
+    for (int col = 0; col < COLS; col++) {
+        if (rowsOnScreen == 12) {
+          drawImage(0,0,myOver, 700,800);
+            return 1;  // Game over condition met
+        }
+    }
+    return 0;  // No ball has reached the top row yet
+}
+
 int isPaused = 0; // 0 = game running, 1 = game paused
 
 void moveShooter() {
@@ -338,6 +351,13 @@ void moveShooter() {
   while (1) {
     char input = uart_getc_game(); // Read input outside of the timing condition
 
+    // Check if the game is over after every ball placement
+    if (isGameOver())
+    {
+      uart_puts("\nGAME OVER! No more space!\n");
+      break; // Exit the game loop when the game is over
+    }
+    
     // Check for pause state first
     if (isPaused) {
       if (input == 'c') // Continue game
