@@ -12,7 +12,7 @@ struct Ball {
   unsigned int color; // Color of the ball
 };
 
-#define ROWS 16
+#define ROWS 26
 #define COLS 8
 
 // Array to hold multiple balls

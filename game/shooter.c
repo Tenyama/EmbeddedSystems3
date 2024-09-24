@@ -218,12 +218,11 @@ void move_left() {
 // Function to check if the game is over (if any ball reaches the top row)
 int isGameOver() {
   for (int col = 0; col < COLS; col++) {
-    if (getMaxRowGame() == 12) {
+    if (getMaxRowGame() == 13) {
+      wait_msec(1000);
       clearScreen();
       drawImage(0, 0, myOver, 700, 800);
       draw_string_with_background(130, 660, "Enter \"game\" to play again",
-                                  0xFFFF69B4, 0xFF000000, 2);
-      draw_string_with_background(130, 700, "Enter 'q' to quite the game!",
                                   0xFFFF69B4, 0xFF000000, 2);
       return 1; // Game over condition met
     }

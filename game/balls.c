@@ -253,7 +253,7 @@ void handleExplosion(int row, int col) {
     // Animate explosion at the coordinates of the center ball
     drawExplode(viewableBalls[row][col].centerX,
                 viewableBalls[row][col].centerY);
-    wait_msec(100);
+    wait_msec(50);
     clearExplosion(viewableBalls[row][col].centerX,
                    viewableBalls[row][col].centerY);
 
@@ -274,6 +274,7 @@ void resetViewableBalls() {
       viewableBalls[i][j] = resetBall();
     }
   }
+  rowsOnScreen = 0;
 }
 
 void registerBall(int end_x, struct Ball ball) {
