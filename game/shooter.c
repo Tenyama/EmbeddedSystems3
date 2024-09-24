@@ -312,6 +312,9 @@ int isGameOver() {
     for (int col = 0; col < COLS; col++) {
         if (rowsOnScreen == 12) {
           drawImage(0,0,myOver, 700,800);
+          draw_string(130, 660, "Enter 'r' to reset the game!", 0xFFFF69B4, 2);
+          draw_string(130, 700, "Enter 'q' to quite the game!", 0xFFFF69B4, 2);
+
             return 1;  // Game over condition met
         }
     }
@@ -419,6 +422,10 @@ void moveShooter() {
       {
         uart_puts("\nGame Paused\n");
         drawImage(0, 0, myPause, 700, 800); // Draw the pause image
+        draw_string(130, 640, "Enter 'c' to continue the game!", 0xFFFF69B4, 2);
+        draw_string(130, 680, "Enter 'q' to quite the game!", 0xFFFF69B4, 2);
+        draw_string(130, 720, "Enter 'r' to reset the game!", 0xFFFF69B4, 2);
+
         isPaused = 1;                       // Set the game to paused
       }
     } else {
