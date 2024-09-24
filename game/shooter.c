@@ -116,7 +116,7 @@ void eraseShooter(int base_x, int base_y, int shooter_angle) {
       int rounded_y = (y + 500) / 1000;
 
       // Stop drawing if x is less than or equal to 228
-      if (rounded_x <= 228) {
+      if (rounded_x <= 228 || rounded_y < getMaxRow(rounded_x) * 59) {
         continue;
       }
       if (rounded_x >= 228 && rounded_x < 700 && rounded_y >= 0 &&
@@ -147,7 +147,7 @@ void drawShooter(int base_x, int base_y, int shooter_angle) {
       int rounded_y = (y + 500) / 1000;
 
       // Stop drawing if x is less than or equal to 228
-      if (rounded_x <= 228) {
+      if (rounded_x <= 228 || rounded_y < getMaxRow(rounded_x) * 59) {
         continue;
       }
       // Checking if the rounded coordinates are within screen boundaries
@@ -216,15 +216,17 @@ void move_left() {
 }
 // Function to check if the game is over (if any ball reaches the top row)
 int isGameOver() {
-    for (int col = 0; col < COLS; col++) {
-        if (rowsOnScreen == 12) {
-          drawImage(0,0,myOver, 700,800);
-          draw_string_with_background(130, 660, "Enter 'r' to reset the game!", 0xFFFF69B4, 0xFF000000, 2);
-          draw_string_with_background(130, 700, "Enter 'q' to quite the game!", 0xFFFF69B4, 0xFF000000, 2);
-            return 1;  // Game over condition met
-        }
+  for (int col = 0; col < COLS; col++) {
+    if (rowsOnScreen == 12) {
+      drawImage(0, 0, myOver, 700, 800);
+      draw_string_with_background(130, 660, "Enter 'r' to reset the game!",
+                                  0xFFFF69B4, 0xFF000000, 2);
+      draw_string_with_background(130, 700, "Enter 'q' to quite the game!",
+                                  0xFFFF69B4, 0xFF000000, 2);
+      return 1; // Game over condition met
     }
-    return 0;  // No ball has reached the top row yet
+  }
+  return 0; // No ball has reached the top row yet
 }
 // Function to move the shooter to the right
 void move_right() {
@@ -341,7 +343,7 @@ void moveShooter() {
         drawBallsMatrix();   // Redraw any active balls
         drawShooter(BASE_X, BASE_Y, shooter_angle); // Redraw shooter
         drawBall(shooterBall);                      // Redraw current ball
-        updatePlayerScoreDisplay(&player);          // Redraw the player's score
+                                                    // Redraw the player's score
         isPaused = 0;                               // Unpause the game
       } else if (input == 'q') {
         uart_puts("\nQuitting Game\n");
@@ -350,7 +352,7 @@ void moveShooter() {
       continue; // Skip the rest of the loop if paused
     }
 
-    // updatePlayerScoreDisplay(&player); // Redraw the player's score
+    //   // Redraw the player's score
     // Normal game loop when not paused
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     drawBallsMatrix();
@@ -388,9 +390,12 @@ void moveShooter() {
       } else if (input == 'p') {
         uart_puts("\nGame Paused\n");
         drawImage(0, 0, myPause, 700, 800); // Draw the pause image
-       draw_string_with_background(130, 640, "Enter 'c' to continue the game!", 0xFFFF69B4, 0xFF000000, 2);
-        draw_string_with_background(130, 680, "Enter 'q' to quite the game!", 0xFFFF69B4, 0xFF000000, 2);
-        draw_string_with_background(130, 720, "Enter 'r' to reset the game!", 0xFFFF69B4, 0xFF000000, 2);
+        draw_string_with_background(130, 640, "Enter 'c' to continue the game!",
+                                    0xFFFF69B4, 0xFF000000, 2);
+        draw_string_with_background(130, 680, "Enter 'q' to quite the game!",
+                                    0xFFFF69B4, 0xFF000000, 2);
+        draw_string_with_background(130, 720, "Enter 'r' to reset the game!",
+                                    0xFFFF69B4, 0xFF000000, 2);
 
         isPaused = 1; // Set the game to paused
       }
