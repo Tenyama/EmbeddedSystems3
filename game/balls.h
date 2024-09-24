@@ -42,7 +42,7 @@ typedef struct {
   int level; // The player's current level
 } Player;
 
-Player player;
+extern Player player;
 
 // Function declarations
 void initPlayer(Player *player);                // Initialize a player
