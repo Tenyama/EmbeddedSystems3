@@ -33,6 +33,20 @@ int check_explosion(int x, int y);
 void registerBall(int end_x, struct Ball ball);
 int getMaxRow(int currentX);
 
+//Define the Player structure
+typedef struct {
+  int score;  // The player's current score
+  int level;  // The player's current level
+} Player;
+
+Player player;
+
+// Function declarations
+void initPlayer(Player *player);                // Initialize a player
+void increaseScore(Player *player, int amount); // Increase the player's score
+void decreaseScore(Player *player, int amount); // Decrease the player's score
+void updatePlayerScoreDisplay(Player *player);  // Update the player's score display
+void displayScoreRegion();                      // Display the scoreboard region
 #endif // BALLS_H
 
 // fromShooter

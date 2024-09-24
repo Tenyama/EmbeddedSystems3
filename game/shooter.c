@@ -348,7 +348,7 @@ void moveShooter() {
         drawBallsMatrix();   // Redraw any active balls
         drawShooter(BASE_X, BASE_Y, shooter_angle); // Redraw shooter
         drawBall(shooterBall);                      // Redraw current ball
-        updatePlayerScoreDisplay(&player);          // Redraw the player's score
+        // updatePlayerScoreDisplay(&player);          // Redraw the player's score
         isPaused = 0;                               // Unpause the game
       } else if (input == 'q')                      // Quit game while paused
       {
@@ -358,7 +358,7 @@ void moveShooter() {
       continue; // Skip the rest of the loop if paused
     }
 
-    updatePlayerScoreDisplay(&player); // Redraw the player's score
+    // updatePlayerScoreDisplay(&player); // Redraw the player's score
     // Normal game loop when not paused
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     drawBallsMatrix();
@@ -389,8 +389,7 @@ void moveShooter() {
                                                    // color for the next ball
         ballReady = 0;
         drawBallsMatrix();
-        updatePlayerScoreDisplay(
-            &player); // Only update the score if the game is not paused
+        // updatePlayerScoreDisplay(&player); // Only update the score if the game is not paused
       } else if (input == 'q') // Quit game
       {
         uart_puts("\nQuitting Game\n");

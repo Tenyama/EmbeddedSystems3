@@ -3,6 +3,7 @@
 #include "./background.h"
 #include "./gameIntro.h"
 #include "./shooter.h"
+#include "./balls.h"
 
 void displayGameIntro(int x, int y) {
   for (int h = 0; h < 800; h++) {
@@ -20,6 +21,8 @@ void displayGameIntro(int x, int y) {
 }
 
 void welcomeGame() {
+  Player player;
+  initPlayer(&player);
   displayGameIntro(0, 0);
   uart_puts("Press space to confirm");
   char input = uart_getc();
