@@ -10,12 +10,12 @@ void uart_init() {
   baudrate = 270;
 
   /* initialize UART */
-  AUX_ENABLE |= 1;        // enable mini UART (UART1)
-  AUX_MU_CNTL = 0;        // stop transmitter and receiver
-  AUX_MU_LCR = 3;         // 8-bit mode (also enable bit 1 to be used for RPI3)
-  AUX_MU_MCR = 0;         // clear RTS (request to send)
-  AUX_MU_IER = 0;         // disable interrupts8
-  AUX_MU_IIR = 0xc6;      // enable and clear FIFOs
+  AUX_ENABLE |= 1;   // enable mini UART (UART1)
+  AUX_MU_CNTL = 0;   // stop transmitter and receiver
+  AUX_MU_LCR = 3;    // 8-bit mode (also enable bit 1 to be used for RPI3)
+  AUX_MU_MCR = 0;    // clear RTS (request to send)
+  AUX_MU_IER = 0;    // disable interrupts8
+  AUX_MU_IIR = 0xc6; // enable and clear FIFOs
 
   AUX_MU_BAUD = baudrate; // configure 115200 baud rate
                           // [system_clk_freq/(baud_rate*8) - 1]
@@ -89,7 +89,7 @@ char uart_getc_game() {
   char c;
   /* wait until data is ready (one symbol) */
   int i = 0;
-  int total_time = 1000000;
+  int total_time = 10000;
   do {
     asm volatile("nop");
     i++;
@@ -161,8 +161,6 @@ void uart_dec(int num) {
   uart_puts(str);
 }
 
-
-
 // Function to set the stopbits
 void set_stopbits_uart1(int stopbits) {
   if (stopbits == 1) {
@@ -175,31 +173,29 @@ void set_stopbits_uart1(int stopbits) {
 
 // Check baudrate
 void check_baudrate_uart1() {
-    unsigned int divisor = AUX_MU_BAUD;  // Read the current divisor
-    uart_puts("Current baudrate divisor: ");
-    uart_dec(divisor);
-    uart_puts("\n");
+  unsigned int divisor = AUX_MU_BAUD; // Read the current divisor
+  uart_puts("Current baudrate divisor: ");
+  uart_dec(divisor);
+  uart_puts("\n");
 }
-
 
 // Directly set the divisor for baudrate
 void set_baudrate_uart1(unsigned int user_baudrate_divisor) {
-    // // Disable UART temporarily to set baudrate
-    // AUX_MU_CNTL = 0;  // Disable transmitter and receiver
+  // // Disable UART temporarily to set baudrate
+  // AUX_MU_CNTL = 0;  // Disable transmitter and receiver
 
-    // // Directly set the divisor based on user input
-    // AUX_MU_BAUD = user_baudrate_divisor;
-    // baudrate_divisor = user_baudrate_divisor;  // Store globally
+  // // Directly set the divisor based on user input
+  // AUX_MU_BAUD = user_baudrate_divisor;
+  // baudrate_divisor = user_baudrate_divisor;  // Store globally
 
-    // // Re-enable UART transmitter and receiver
-    // AUX_MU_CNTL = 3;
+  // // Re-enable UART transmitter and receiver
+  // AUX_MU_CNTL = 3;
 
-    // // Debugging: Print the divisor
-    // uart_puts("Set baudrate divisor: ");
-    // uart_dec(user_baudrate_divisor);
-    // uart_puts("\n");
+  // // Debugging: Print the divisor
+  // uart_puts("Set baudrate divisor: ");
+  // uart_dec(user_baudrate_divisor);
+  // uart_puts("\n");
 }
-
 
 void check_stopbits_uart1() {
   unsigned int lcr = AUX_MU_LCR; // Read the Line Control Register

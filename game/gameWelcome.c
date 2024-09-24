@@ -21,7 +21,7 @@ void displayGameIntro(int x, int y) {
 
 void welcomeGame() {
   displayGameIntro(0, 0);
-  uart_puts("Press space to confirm");
+  uart_puts("Press space to confirm\n");
   char input = uart_getc();
   if (input == ' ') {
     drawImage(0, 0, myBackground, 700, 800);

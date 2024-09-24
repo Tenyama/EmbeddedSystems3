@@ -32,6 +32,7 @@ void handleExplosion(int row, int col);
 int check_explosion(int x, int y);
 void registerBall(int end_x, struct Ball ball);
 int getMaxRow(int currentX);
+int checkEmptySpot(int x, int y);
 
 #endif // BALLS_H
 
