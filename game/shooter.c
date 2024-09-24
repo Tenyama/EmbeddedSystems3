@@ -382,8 +382,6 @@ void moveShooter() {
         ballReady = 0;
         drawBallsMatrix();
         drawShooter(BASE_X, BASE_Y, shooter_angle);
-        updatePlayerScoreDisplay(
-            &player); // Only update the score if the game is not paused
       } else if (input == 'q') {
         uart_puts("\nQuitting Game\n");
         break; // Exit the game loop

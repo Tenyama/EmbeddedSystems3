@@ -1,17 +1,17 @@
 #include "./balls.h"
 #include "../kernel/framebf.h"
+#include "../kernel/mbox.h" // For mailbox handling
+#include "../kernel/menu.h"
 #include "../uart/uart1.h"
 #include "./ballExplode.h"
 #include "./interrupt.h"
 #include "./player.h"
-#include "../kernel/mbox.h"    // For mailbox handling
-#include "../kernel/menu.h"
 
 #define SCORE_REGION_WIDTH 228
 #define SCOREBOARD_BORDER_COLOR 0xFFEA7F7D // Border color for the scoreboard
-#define SCOREBOARD_BACKGROUND_COLOR 0xFF999999 // Background color for the scoreboard
-#define LEVEL_UP_SCORE 100                 // Score required to level up
-
+#define SCOREBOARD_BACKGROUND_COLOR                                            \
+  0xFF999999               // Background color for the scoreboard
+#define LEVEL_UP_SCORE 100 // Score required to level up
 
 typedef unsigned char uint8_t;
 // Player player;
@@ -296,32 +296,16 @@ void registerBall(int end_x, struct Ball ball) {
   // Store the ball in the matrix
   viewableBalls[row][column] = ball;
 
-    // Output ball's position for debugging
-    uart_puts("\n Ball registered at row: ");
-    uart_dec(row);
-    uart_puts(" column: ");
-    uart_dec(column);
-    uart_puts(" -> X: ");
-    uart_dec(viewableBalls[row][column].centerX);
-    uart_puts(" Y: ");
-    uart_dec(viewableBalls[row][column].centerY);
-    uart_puts(" Color: ");
-    uart_hex(viewableBalls[row][column].color);
-    uart_puts("\n");
-    handleExplosion(row, column);
-  } else {
-    uart_puts("Error: No available row to register the ball!\n");
-  }
+  handleExplosion(row, column);
+  drawBallsMatrix();
 }
 
-
-//init players and functions to track score and levels
-
+// init players and functions to track score and levels
 
 // Function to initialize a player with a starting score and level
 void initPlayer(Player *player) {
-  player->score = 0;  // Start the player with a score of 0
-  player->level = 1;  // Start the player at level 1
+  player->score = 0; // Start the player with a score of 0
+  player->level = 1; // Start the player at level 1
 }
 
 // Function to update the player's score and level display
@@ -343,7 +327,8 @@ void updatePlayerScoreDisplay(Player *player) {
   unsigned int text_color = 0xFFFFFFFF; // White color for the text
   int scale = 2;                        // Text size
 
-  // Redraw "PLAYER SCORE:" and "PLAYER LEVEL:" to refresh the background and text
+  // Redraw "PLAYER SCORE:" and "PLAYER LEVEL:" to refresh the background and
+  // text
   draw_string(x, y, "PLAYER SCORE:", text_color, scale);
 
   // Convert the player's score to a string
@@ -354,7 +339,7 @@ void updatePlayerScoreDisplay(Player *player) {
   // Display the player's level below the score
   draw_string(x, y + 80, "PLAYER LEVEL:", text_color, scale);
   char level_str[12];
-  int_to_str(player->level, level_str);  // Manually convert level to string
+  int_to_str(player->level, level_str); // Manually convert level to string
   draw_string(x, y + 120, level_str, text_color, scale);
 }
 // Function to check if the player has leveled up
