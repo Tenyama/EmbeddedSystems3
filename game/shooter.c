@@ -115,7 +115,11 @@ void eraseShooter(int base_x, int base_y, int shooter_angle) {
       int rounded_x = (x + 500) / 1000;
       int rounded_y = (y + 500) / 1000;
 
-      if (rounded_x >= 0 && rounded_x < 700 && rounded_y >= 0 &&
+      // Stop drawing if x is less than or equal to 228
+      if (rounded_x <= 228) {
+        continue;
+      }
+      if (rounded_x >= 228 && rounded_x < 700 && rounded_y >= 0 &&
           rounded_y < 800) {
         drawBackgroundPixel(rounded_x, rounded_y);
       }
@@ -142,8 +146,12 @@ void drawShooter(int base_x, int base_y, int shooter_angle) {
       int rounded_x = (x + 500) / 1000;
       int rounded_y = (y + 500) / 1000;
 
+      // Stop drawing if x is less than or equal to 228
+      if (rounded_x <= 228) {
+        continue;
+      }
       // Checking if the rounded coordinates are within screen boundaries
-      if (rounded_x >= 0 && rounded_x < 700 && rounded_y >= 0 &&
+      if (rounded_x >= 228 && rounded_x < 700 && rounded_y >= 0 &&
           rounded_y < 800) {
         drawPixelARGB32(rounded_x, rounded_y,
                         0x00C00000); // Draw the shooter pixel (red color)
@@ -304,7 +312,7 @@ void moveShooter() {
   copyBallsToScreen();
   drawBallsMatrix();
 
-  struct Ball shooterBall = {BASE_X, 771, 29, generateRandomColor()};
+  struct Ball shooterBall = {BASE_X, BASE_Y, 29, generateRandomColor()};
   int ballReady = 1;
 
   Player player;
@@ -343,7 +351,7 @@ void moveShooter() {
       continue; // Skip the rest of the loop if paused
     }
 
-    updatePlayerScoreDisplay(&player); // Redraw the player's score
+    // updatePlayerScoreDisplay(&player); // Redraw the player's score
     // Normal game loop when not paused
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     drawBallsMatrix();
@@ -363,14 +371,16 @@ void moveShooter() {
         drawBall(shooterBall);
         drawBallsMatrix();
       } else if (input == ' ' && !isPaused) {
+        eraseShooter(BASE_X, BASE_Y, shooter_angle);
         moveBallAlongShooterLine(&shooterBall, shooter_angle, 40);
         // After shooting the ball, reset it for the next shot
         shooterBall.centerX = BASE_X;
-        shooterBall.centerY = 771;
+        shooterBall.centerY = BASE_Y;
         shooterBall.color = generateRandomColor(); // Generate a new random
                                                    // color for the next ball
         ballReady = 0;
         drawBallsMatrix();
+        drawShooter(BASE_X, BASE_Y, shooter_angle);
         updatePlayerScoreDisplay(
             &player); // Only update the score if the game is not paused
       } else if (input == 'q') {

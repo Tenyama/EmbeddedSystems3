@@ -1,3 +1,4 @@
+#include "../kernel/draw.h"
 #include "../kernel/framebf.h"
 #include "../uart/uart0.h"
 #include "./background.h"

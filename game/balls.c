@@ -204,7 +204,6 @@ int check_explosion(int x, int y) {
   resetVisited(); // Clear the visited array before each check
   int connected_count = depthFirstSearch(x, y, color);
   if (connected_count >= 3) {
-    uart_puts("BOOM");
     return 1;
   }
   return 0;
