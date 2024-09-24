@@ -260,6 +260,8 @@ void handleExplosion(int row, int col) {
     clearConnectedBalls(row, col, color); // Pass the stored color
     // Redraw the screen to reflect the cleared balls
     drawBallsMatrix();
+    updatePlayerScoreDisplay(&player);
+    // displayScoreRegion();
   }
 }
 
@@ -342,12 +344,35 @@ void updatePlayerScoreDisplay(Player *player) {
   int_to_str(player->level, level_str); // Manually convert level to string
   draw_string(x, y + 120, level_str, text_color, scale);
 }
+
+
+
+// // Function to get the speed based on the player's level
+// unsigned int getSpeedForLevel(int level) {
+//     if (level == 1) {
+//         return 7000; // 7 seconds
+//     } else if (level == 2) {
+//         return 5000; // 5 seconds
+//     } else if (level == 3) {
+//         return 2000; // 2 seconds
+//     }
+//     // Default speed if level is outside expected range
+//     return 7000;
+// }
+
 // Function to check if the player has leveled up
 void checkLevelUp(Player *player) {
-  if (player->score >= LEVEL_UP_SCORE && player->level == 1) {
-    player->level = 2; // Increase player level to 2
-    uart_puts("Congratulations! You've leveled up to Level 2!\n");
-  }
+
+    if (player->score >= 0 && player->level == 0){
+      player->level = 1;
+    }
+    else if (player->score >= 100 && player->level == 1) {
+        player->level = 2; // Increase player level to 2
+        uart_puts("Congratulations! You've leveled up to Level 2!\n");
+    } else if (player->score >= 200 && player->level == 2) {
+        player->level = 3; // Increase player level to 3
+        uart_puts("Congratulations! You've leveled up to Level 3!\n");
+    }
 }
 
 // Function to increase the player's score by a certain amount

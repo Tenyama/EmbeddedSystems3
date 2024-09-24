@@ -296,9 +296,8 @@ void moveBallAlongShooterLine(struct Ball *ball, int shooter_angle,
 }
 
 int isPaused = 0; // 0 = game running, 1 = game paused
-
 void moveShooter() {
-  unsigned int msVal = 5000;
+  unsigned int msVal = 7000; // Initial speed (7 seconds)
   static unsigned long expiredTime = 0; // declare static to keep value
   register unsigned long f, t;
   asm volatile("mrs %0, cntfrq_el0" : "=r"(f));
@@ -317,7 +316,7 @@ void moveShooter() {
   int ballReady = 1;
 
   Player player;
-  initPlayer(&player);
+  initPlayer(&player); // Initialize player's score and level
 
   uart_puts("\nPress A to move shooter to left: ");
   uart_puts("\nPress D to move shooter to right: ");
@@ -334,6 +333,17 @@ void moveShooter() {
       break; // Exit the game loop when the game is over
     }
 
+    // Manually check the player's level and adjust msVal based on level
+    if (player.score >= 50 && player.level == 1) {
+      player.level = 2;
+      msVal = 2000; // Level 2 - 5 seconds
+      uart_puts("Level Up to Level 2! Speed increased.\n");
+    } else if (player.score >= 100 && player.level == 2) {
+      player.level = 3;
+      msVal = 1000; // Level 3 - 2 seconds
+      uart_puts("Level Up to Level 3! Speed increased further.\n");
+    }
+
     // Check for pause state first
     if (isPaused) {
       if (input == 'c') {
@@ -343,17 +353,16 @@ void moveShooter() {
         drawBallsMatrix();   // Redraw any active balls
         drawShooter(BASE_X, BASE_Y, shooter_angle); // Redraw shooter
         drawBall(shooterBall);                      // Redraw current ball
-                                                    // Redraw the player's score
         isPaused = 0;                               // Unpause the game
       } else if (input == 'q') {
         uart_puts("\nQuitting Game\n");
+        clearScreen();
+
         break; // Exit the game loop
       }
       continue; // Skip the rest of the loop if paused
     }
 
-    //   // Redraw the player's score
-    // Normal game loop when not paused
     asm volatile("mrs %0, cntpct_el0" : "=r"(t));
     drawBallsMatrix();
     if (t < expiredTime) {
@@ -377,30 +386,26 @@ void moveShooter() {
         // After shooting the ball, reset it for the next shot
         shooterBall.centerX = BASE_X;
         shooterBall.centerY = BASE_Y;
-        shooterBall.color = generateRandomColor(); // Generate a new random
-                                                   // color for the next ball
+        shooterBall.color = generateRandomColor(); // Generate a new random color for the next ball
         ballReady = 0;
         drawBallsMatrix();
         drawShooter(BASE_X, BASE_Y, shooter_angle);
       } else if (input == 'q') {
         uart_puts("\nQuitting Game\n");
+        clearScreen();
         break; // Exit the game loop
       } else if (input == 'p') {
         uart_puts("\nGame Paused\n");
         drawImage(0, 0, myPause, 700, 800); // Draw the pause image
-        draw_string_with_background(130, 640, "Enter 'c' to continue the game!",
-                                    0xFFFF69B4, 0xFF000000, 2);
-        draw_string_with_background(130, 680, "Enter 'q' to quite the game!",
-                                    0xFFFF69B4, 0xFF000000, 2);
-        draw_string_with_background(130, 720, "Enter 'r' to reset the game!",
-                                    0xFFFF69B4, 0xFF000000, 2);
-
+        draw_string_with_background(130, 640, "Enter 'c' to continue the game!", 0xFFFF69B4, 0xFF000000, 2);
+        draw_string_with_background(130, 680, "Enter 'q' to quite the game!", 0xFFFF69B4, 0xFF000000, 2);
+        draw_string_with_background(130, 720, "Enter 'r' to reset the game!", 0xFFFF69B4, 0xFF000000, 2);
         isPaused = 1; // Set the game to paused
       }
     } else {
-      // copyBallsToScreen();
-      // drawBallsMatrix();
-      expiredTime = t + f * msVal / 1000;
+      copyBallsToScreen();
+      drawBallsMatrix();
+      expiredTime = t + f * msVal / 1000; // Adjust the delay based on new msVal
     }
   }
 }
