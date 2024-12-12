@@ -61,13 +61,9 @@ This was developed as part of the **EEET2490 Embedded Systems: OS and Interfacin
    ```bash
    git clone <repository_url>
    ```
-2. Build the project:
+2. Build the project and launch the OS using QEMU:
    ```bash
    make
-   ```
-3. Launch the OS using QEMU:
-   ```bash
-   make run
    ```
 
 ---
